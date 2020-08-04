@@ -188,6 +188,7 @@
         - Là giao diện kết nối giữa **Neutron** và các công nghệ back-end như **SDN**, **Cisco**, **VMware NSX**. Nhờ đó người dùng **Neutron** có thể tận dụng được các tính năng nâng cao của các thiết bị mạng hoặc phần mềm mạng của bên thứ ba. 
         - Các plugin này bao gồm: **Open vSwitch**, **Cisco UCS/Nexus**, **Linux Bridge**, **Nicira Network Virtualization Platform**, **Ryu OpenFlow Controller**, **NEC OpenFlow**. Một trong các plugin không trực tiếp liên quan tới công nghệ bên thứ ba nhưng là 1 plugin quan trọng đó là **ML2** (**Modular Layer 2**) plugin. Plugin này cho phép hoạt động đồng thời của nhiều công nghệ mạng hỗn hợp trong **Neutron**.
         <img src=https://i.imgur.com/rVPFsmb.jpg>
+        
         - Không có **ML2 driver**, **Neutron** chỉ có thể cung cấp dịch vụ lớp 2. Hai khái niệm về driver trong ML2 là **Type** và **Mechanism**:
             - **Type Manager**: **GRE**, **VLAN**, **VXLAN**
             - **Mechanism Manager**: **Cisco APIC**, **Cisco Nexus**, **Linux Bridge**, **OpenvSwitch**
