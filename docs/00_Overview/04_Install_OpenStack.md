@@ -227,7 +227,7 @@
     ```
 - **B5 :** Tạo user `openstack` với mật khẩu tùy ý (**VD :** '`P@ssw0rd`)
     ```
-    # rabbitmqctl add_user openstack P@ssw0rd
+    # rabbitmqctl add_user openstack Passw0rd123
     ```
 - **B6 :** Gán quyền cho user vừa tạo :
     ```
@@ -479,9 +479,9 @@
     # openstack user create  placement --domain default --password P@ssw0rd
     # openstack role add --project service --user placement admin
     # openstack service create --name placement --description "Placement API" placement
-    # openstack endpoint create --region RegionOne placement public http://10.10.230.205:8778
-    # openstack endpoint create --region RegionOne placement internal http://10.10.230.205:8778
-    # openstack endpoint create --region RegionOne placement admin http://10.10.230.205:8778
+    # openstack endpoint create --region RegionTest placement public http://10.10.230.205:8778
+    # openstack endpoint create --region RegionTest placement internal http://10.10.230.205:8778
+    # openstack endpoint create --region RegionTest placement admin http://10.10.230.205:8778
     ```
 - **B4 :** Cài đặt `placement` :
     ```
@@ -575,7 +575,7 @@
     # crudini --set /etc/nova/nova.conf DEFAULT use_neutron true    
     # crudini --set /etc/nova/nova.conf DEFAULT firewall_driver nova.virt.firewall.NoopFirewallDriver
     # crudini --set /etc/nova/nova.conf DEFAULT enabled_apis osapi_compute,metadata
-    # crudini --set /etc/nova/nova.conf DEFAULT transport_url rabbit://openstack:P@ssw0rd@10.10.230.205:5672/
+    # crudini --set /etc/nova/nova.conf DEFAULT transport_url rabbit://openstack:Passw0rd123@10.10.230.205:5672/
     # crudini --set /etc/nova/nova.conf api_database connection mysql+pymysql://nova:P@ssw0rd@10.10.230.205/nova_api
     # crudini --set /etc/nova/nova.conf database connection mysql+pymysql://nova:P@ssw0rd@10.10.230.205/nova
     # crudini --set /etc/nova/nova.conf api connection  mysql+pymysql://nova:P@ssw0rd@10.10.230.205/nova
@@ -655,7 +655,7 @@
 - **B3 :** Cấu hình `nova` (trên `compute1`. Làm tương tự với `compute2` ):
     ```
     # crudini --set /etc/nova/nova.conf DEFAULT enabled_apis osapi_compute,metadata
-    # crudini --set /etc/nova/nova.conf DEFAULT transport_url rabbit://openstack:P@ssw0rd@10.10.230.205
+    # crudini --set /etc/nova/nova.conf DEFAULT transport_url rabbit://openstack:Passw0rd123@10.10.230.205
     # crudini --set /etc/nova/nova.conf DEFAULT my_ip 10.10.230.136
     # crudini --set /etc/nova/nova.conf DEFAULT use_neutron true
     # crudini --set /etc/nova/nova.conf DEFAULT firewall_driver nova.virt.firewall.NoopFirewallDriver
@@ -698,8 +698,278 @@
     # source /root/admin-openrc
     # openstack compute service list --service nova-compute
     ```
+    <img src=https://i.imgur.com/0oaLGYK.png>
 - **B2 :** Add các note `compute` vào `cell` :
     ```
     # su -s /bin/sh -c "nova-manage cell_v2 discover_hosts --verbose" nova
     ```
 ### **2.11) Cài đặt `Neutron`**
+#### **2.11.1) Cài đặt `Neutron` trên node `controller`**
+- **B1 :** Tạo database cho `Neutron` :
+    ```
+    # mysql -u root -pP@ssw0rd
+    > CREATE DATABASE neutron;
+    > GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'localhost' IDENTIFIED BY 'P@ssw0rd';
+    > GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'%' IDENTIFIED BY 'P@ssw0rd';
+    > GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'10.10.230.205' IDENTIFIED BY 'P@ssw0rd';
+    > FLUSH PRIVILEGES;
+    > exit
+    ```
+- **B2 :** Tạo project, user, endpoint cho **`Neutron`** :
+    ```
+    # source /root/admin-openrc
+    # openstack user create neutron --domain default --password P@ssw0rd
+    # openstack role add --project service --user neutron admin
+    # openstack service create --name neutron --description "OpenStack Compute" network
+    # openstack endpoint create --region RegionTest network public http://10.10.230.205:9696
+    # openstack endpoint create --region RegionTest network internal http://10.10.230.205:9696
+    # openstack endpoint create --region RegionTest network admin http://10.10.230.205:9696
+    ```
+- **B3 :** Cài đặt **`Neutron`** :
+    ```
+    # yum install -y openstack-neutron openstack-neutron-ml2 openstack-neutron-linuxbridge ebtables
+    ```
+- **B4 :** Sao lưu các file cấu hình của **`Neutron`** :
+    ```
+    # cp  /etc/neutron/neutron.conf  /etc/neutron/neutron.conf.bak
+    # cp /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugins/ml2/ml2_conf.ini.bak
+    # cp /etc/neutron/dhcp_agent.ini /etc/neutron/dhcp_agent.ini.bak
+    # cp /etc/neutron/metadata_agent.ini /etc/neutron/metadata_agent.ini.bak
+    ```
+- **B5 :** Cấu hình file `/etc/neutron/neutron.conf` :
+    ```
+    # crudini --set  /etc/neutron/neutron.conf DEFAULT core_plugin ml2
+    # crudini --set  /etc/neutron/neutron.conf DEFAULT service_plugins
+    # crudini --set  /etc/neutron/neutron.conf DEFAULT transport_url rabbit://openstack:Passw0rd123@10.10.230.205
+    # crudini --set  /etc/neutron/neutron.conf DEFAULT auth_strategy keystone
+    # crudini --set  /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_status_changes True
+    # crudini --set  /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_data_changes True 
+    # crudini --set  /etc/neutron/neutron.conf database connection  mysql+pymysql://neutron:P@ssw0rd@10.10.230.205/neutron
+    # crudini --set  /etc/neutron/neutron.conf keystone_authtoken www_authenticate_uri http://10.10.230.205:5000
+    # crudini --set  /etc/neutron/neutron.conf keystone_authtoken auth_url http://10.10.230.205:5000
+    # crudini --set  /etc/neutron/neutron.conf keystone_authtoken memcached_servers 10.10.230.205:11211
+    # crudini --set  /etc/neutron/neutron.conf keystone_authtoken auth_type password
+    # crudini --set  /etc/neutron/neutron.conf keystone_authtoken project_domain_name default
+    # crudini --set  /etc/neutron/neutron.conf keystone_authtoken user_domain_name default
+    # crudini --set  /etc/neutron/neutron.conf keystone_authtoken project_name service
+    # crudini --set  /etc/neutron/neutron.conf keystone_authtoken username neutron
+    # crudini --set  /etc/neutron/neutron.conf keystone_authtoken password P@ssw0rd
+    # crudini --set /etc/neutron/neutron.conf nova auth_url http://10.10.230.205:5000
+    # crudini --set /etc/neutron/neutron.conf nova auth_type password
+    # crudini --set /etc/neutron/neutron.conf nova project_domain_name Default
+    # crudini --set /etc/neutron/neutron.conf nova user_domain_name Default
+    # crudini --set /etc/neutron/neutron.conf nova region_name RegionTest
+    # crudini --set /etc/neutron/neutron.conf nova project_name service
+    # crudini --set /etc/neutron/neutron.conf nova username nova
+    # crudini --set /etc/neutron/neutron.conf nova password P@ssw0rd
+    # crudini --set /etc/neutron/neutron.conf oslo_concurrency lock_path /var/lib/neutron/tmp
+    ```
+- **B6 :** Sửa file cấu hình `/etc/neutron/plugins/ml2/ml2_conf.ini` :
+    ```
+    # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2 type_drivers flat,vlan,vxlan
+    # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2 tenant_network_types vxlan
+    # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2 mechanism_drivers linuxbridge
+    # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2 extension_drivers port_security          
+    # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2_type_flat flat_networks provider
+    # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2_type_vxlan vni_ranges 1:1000        
+    # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini securitygroup enable_ipset True
+    ```
+- **B7 :** Sửa file cấu hình `/etc/neutron/plugins/ml2/linuxbridge_agent.ini` :
+    ```
+    # crudini --set  /etc/neutron/plugins/ml2/linuxbridge_agent.ini linux_bridge physical_interface_mappings provider:eth0
+    # crudini --set  /etc/neutron/plugins/ml2/linuxbridge_agent.ini vxlan enable_vxlan True
+    # crudini --set  /etc/neutron/plugins/ml2/linuxbridge_agent.ini vxlan local_ip $(ip addr show dev eth2 scope global | grep "inet " | sed -e 's#.*inet ##g' -e 's#/.*##g')
+    # crudini --set  /etc/neutron/plugins/ml2/linuxbridge_agent.ini securitygroup enable_security_group True
+    # crudini --set  /etc/neutron/plugins/ml2/linuxbridge_agent.ini securitygroup firewall_driver neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
+    ```
+- **B8 :** Khai báo `sysctl` :
+    ```
+    # echo 'net.bridge.bridge-nf-call-iptables = 1' >> /etc/sysctl.conf
+    # echo 'net.bridge.bridge-nf-call-ip6tables = 1' >> /etc/sysctl.conf
+    # modprobe br_netfilter
+    # /sbin/sysctl -p
+    ```
+- **B9 :** Tạo liên kết file :
+    ```
+    # ln -s /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugin.ini
+    ```
+- **B10 :** Thiết lập database :
+    ```
+    # su -s /bin/sh -c "neutron-db-manage --config-file /etc/neutron/neutron.conf \
+    --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head" neutron
+    ```
+- **B11 :** Khởi động dịch vụ **`neutron`** :
+    ```
+    # systemctl enable neutron-server.service \
+    neutron-linuxbridge-agent.service neutron-dhcp-agent.service \
+    neutron-metadata-agent.service
+    # systemctl start neutron-server.service \
+    neutron-linuxbridge-agent.service neutron-dhcp-agent.service \
+    neutron-metadata-agent.service
+    ```
+- **B12 :** Kiểm tra lại trạng thái dịch vụ :
+    ```
+    # openstack network agent list
+    ```
+    <img src=https://i.imgur.com/yMQePN0.png>
+
+#### **2.11.2) Cài đặt `Neutron` trên các node `compute`**
+- **B1 :** Khai báo bổ sung cho **`Nova`** :
+    ```
+    # crudini --set /etc/nova/nova.conf neutron url http://10.10.230.205:9696
+    # crudini --set /etc/nova/nova.conf neutron auth_url http://10.10.230.205:5000
+    # crudini --set /etc/nova/nova.conf neutron auth_type password
+    # crudini --set /etc/nova/nova.conf neutron project_domain_name Default
+    # crudini --set /etc/nova/nova.conf neutron user_domain_name Default
+    # crudini --set /etc/nova/nova.conf neutron project_name service
+    # crudini --set /etc/nova/nova.conf neutron username neutron
+    # crudini --set /etc/nova/nova.conf neutron password P@ssw0rd
+    ```
+- **B2 :** Cài đặt **`Neutron`** :
+    ```
+    # yum install -y openstack-neutron openstack-neutron-ml2 openstack-neutron-linuxbridge ebtables ipset
+    ```
+- **B3 :** Sao lưu các file cấu hình của **`Neutron`** :
+    ```
+    # cp /etc/neutron/neutron.conf /etc/neutron/neutron.conf.bak
+    # cp /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugins/ml2/ml2_conf.ini.bak
+    # cp /etc/neutron/plugins/ml2/linuxbridge_agent.ini /etc/neutron/plugins/ml2/linuxbridge_agent.ini.bak
+    # cp /etc/neutron/dhcp_agent.ini /etc/neutron/dhcp_agent.ini.bak
+    # cp /etc/neutron/metadata_agent.ini /etc/neutron/metadata_agent.ini.bak
+    ```
+- **B4 :** Sửa file cấu hình `/etc/neutron/neutron.conf` :
+    ```
+    # crudini --set /etc/neutron/neutron.conf DEFAULT auth_strategy keystone
+    # crudini --set /etc/neutron/neutron.conf DEFAULT core_plugin ml2
+    # crudini --set /etc/neutron/neutron.conf DEFAULT transport_url rabbit://openstack:Passw0rd123@10.10.230.205
+    # crudini --set /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_status_changes true
+    # crudini --set /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_data_changes true
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken www_authenticate_uri http://10.10.230.205:5000
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_url http://10.10.230.205:5000
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken memcached_servers 10.10.230.205:11211
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_type password
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken project_domain_name Default
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken user_domain_name Default
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken project_name service
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken username neutron
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken password P@ssw0rd
+    # crudini --set /etc/neutron/neutron.conf oslo_concurrency lock_path /var/lib/neutron/tmp
+    ```
+- **B5 :** Khai báo `sysctl` :
+    ```
+    # echo 'net.bridge.bridge-nf-call-iptables = 1' >> /etc/sysctl.conf
+    # echo 'net.bridge.bridge-nf-call-ip6tables = 1' >> /etc/sysctl.conf
+    # modprobe br_netfilter
+    # /sbin/sysctl -p
+    ```
+- **B6 :** Sửa file cấu hình `/etc/neutron/plugins/ml2/linuxbridge_agent.ini` :
+    ```
+    # crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini linux_bridge physical_interface_mappings provider:eth0
+    # crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini vxlan enable_vxlan True
+    # crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini vxlan local_ip $(ip addr show dev eth2 scope global | grep "inet " | sed -e 's#.*inet ##g' -e 's#/.*##g')
+    # crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini securitygroup enable_security_group True
+    # crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini securitygroup firewall_driver neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
+    ```
+- **B7 :** Khai báo trong file `/etc/neutron/metadata_agent.ini`
+    ```
+    # crudini --set /etc/neutron/metadata_agent.ini DEFAULT nova_metadata_host 10.10.230.205
+    # crudini --set /etc/neutron/metadata_agent.ini DEFAULT metadata_proxy_shared_secret P@ssw0rd
+    ```
+- **B8 :** Khai báo cho file `/etc/neutron/dhcp_agent.ini` :
+    ```
+    # crudini --set /etc/neutron/dhcp_agent.ini DEFAULT interface_driver neutron.agent.linux.interface.BridgeInterfaceDriver
+    # crudini --set /etc/neutron/dhcp_agent.ini DEFAULT enable_isolated_metadata True
+    # crudini --set /etc/neutron/dhcp_agent.ini DEFAULT dhcp_driver neutron.agent.linux.dhcp.Dnsmasq
+    # crudini --set /etc/neutron/dhcp_agent.ini DEFAULT force_metadata True
+    ```
+- **B9 :** Khởi động **`Neutron`** :
+    ```
+    # systemctl enable neutron-linuxbridge-agent.service
+    # systemctl enable neutron-metadata-agent.service
+    # systemctl enable neutron-dhcp-agent.service
+    # systemctl start neutron-linuxbridge-agent.service
+    # systemctl start neutron-metadata-agent.service
+    # systemctl start neutron-dhcp-agent.service
+    ```
+- **B10 :** Khởi động lại dịch vụ `openstack-nova-compute` :
+    ```
+    # systemctl restart openstack-nova-compute.service
+    ```
+### **2.12) Cài đặt và cấu hình `Horizon` trên node `controller`**
+- **B1 :** Cài đặt `openstack-dashboard` :
+    ```
+    # yum install -y openstack-dashboard
+    ```
+- **B2 :** Sao lưu file `/etc/openstack-dashboard/local_settings` :
+    ```
+    # cp /etc/openstack-dashboard/local_settings /etc/openstack-dashboard/local_settings.bak
+    ```
+- **B3 :** Chỉnh sửa file `/etc/openstack-dashboard/local_settings` :
+    - Chỉnh sửa 1 số dòng sau :
+        ```py
+        OPENSTACK_HOST = "controller"
+        ```
+        ```py
+        ALLOWED_HOSTS = [*]
+        ```
+        ```py
+        SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+
+        CACHES = {
+            'default': {
+                'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+                'LOCATION': 'controller:11211',
+            }
+        }
+        ```
+        ```
+        OPENSTACK_KEYSTONE_URL = "http://%s:5000/v3" % OPENSTACK_HOST
+        ```
+        ```py
+        OPENSTACK_NEUTRON_NETWORK = {
+            ...
+            'enable_router': False,
+            'enable_quotas': False,
+            'enable_distributed_router': False,
+            'enable_ha_router': False,
+            'enable_lb': False,
+            'enable_firewall': False,
+            'enable_vpn': False,
+            'enable_fip_topology_check': False,
+        }
+        ```
+        ```py
+        TIME_ZONE = "Asia/Ho_Chi_Minh"
+        ```
+    - Thêm các dòng sau vào cuối file :
+        ```py
+        OPENSTACK_KEYSTONE_MULTIDOMAIN_SUPPORT = True
+        OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = "Default"
+        OPENSTACK_KEYSTONE_DEFAULT_ROLE = "user"
+        OPENSTACK_API_VERSIONS = {
+            "identity": 3,
+            "image": 2,
+            "volume": 3,
+        }
+        WEBROOT = "/dashboard/"
+        ```
+- **B4 :** Chỉnh sửa file `/etc/httpd/conf.d/openstack-dashboard.conf` :
+    ```
+    # vi /etc/httpd/conf.d/openstack-dashboard.conf
+    ```
+    - Thêm vào cuối file dòng sau :
+        ```
+        WSGIApplicationGroup %{GLOBAL}
+        ```
+- **B5 :** Khởi động lại dịch vụ :
+    ```
+    # systemctl restart httpd.service memcached.service
+    ```
+- **B6 :** Truy cập đường dẫn sau trên trình duyệt để vào dashboard. Đăng nhập bằng tài khoản `admin`/ `P@ssw0rd` vừa tạo ở trên:
+    ```
+    http://IP_CONTROLLER/dashboard
+    ```
+    <img src=https://i.imgur.com/iSuHiam.png>
+
+    <img src=https://i.imgur.com/7VO3zO4.png>
+
