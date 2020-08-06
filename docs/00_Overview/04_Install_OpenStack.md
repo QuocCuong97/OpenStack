@@ -188,7 +188,8 @@
     ```
     # systemctl status mariadb
     ```
-    <img src=https://imgur.com/h041Agl>
+    <img src=https://i.imgur.com/h041Agl.png>
+
 - **B5 :** Bảo mật dịch vụ SQL bằng lệnh :
     ```
     # mysql_secure_installation
