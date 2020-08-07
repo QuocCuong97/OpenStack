@@ -38,16 +38,38 @@
     - Chọn ***Next*** để sang tab tiếp theo 
 - Tại tab **Subnet Details**, khai báo range cấp DHCP cho VM và DNS
 
-    <img src=https://i.imgur.com/CxDdHjc.png>
+    <img src=https://i.imgur.com/p4NjlXM.png>
 
     - `1` : Tùy chọn bật/tắt DHCP
-    - `2` : Khai báo IP bắt đầu và IP kết thúc của DHCP Pool theo cú pháp `start_IP, end_IP`.
+    - `2` : Khai báo IP bắt đầu và IP kết thúc của DHCP Pool theo cú pháp `start_IP,end_IP`.
     - `3` : IP của DNS Server
     - Chọn ***Create*** để kết thúc việc khai báo provider network
+    > **Lưu ý:** 
 - Sau khi dải mạng `public` được thêm thành công, chọn vào nó để xem chi tiết :
 
     <img src=https://i.imgur.com/41j4oTa.png>
 
-- Tại tab **Port**, ta thấy IP: `10.5.11.51` đã được sử dụng để cấp IP DHCP :
+- Tại tab **Port**, ta thấy IP: `10.5.11.101` đã được sử dụng để cấp IP DHCP :
 
-    <img src=https://i.imgur.com/9n9a0IM.png>
+    <img src=https://i.imgur.com/ZDa4oq2.png>
+
+### **2.2) Tạo private network**
+- Chọn Tab ***Project*** -> ***Network*** -> ***Networks*** -> ***Create Network*** :
+
+    <img src=https://i.imgur.com/BSqKSBs.png>
+
+- sss
+
+    <img src=https://i.imgur.com/nl2Qg57.png>
+
+- sss
+
+    <img src=https://i.imgur.com/C25XTfd.png>
+
+- sss
+
+    <img src=https://i.imgur.com/uWnMd4V.png>
+
+- sss
+
+    <img src=https://i.imgur.com/bEHIKby.png>
