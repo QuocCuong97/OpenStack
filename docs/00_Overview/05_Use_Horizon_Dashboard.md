@@ -44,7 +44,6 @@
     - `2` : Khai báo IP bắt đầu và IP kết thúc của DHCP Pool theo cú pháp `start_IP,end_IP`.
     - `3` : IP của DNS Server
     - Chọn ***Create*** để kết thúc việc khai báo provider network
-    > **Lưu ý:** 
 - Sau khi dải mạng `public` được thêm thành công, chọn vào nó để xem chi tiết :
 
     <img src=https://i.imgur.com/41j4oTa.png>
@@ -58,18 +57,29 @@
 
     <img src=https://i.imgur.com/BSqKSBs.png>
 
-- sss
+- Tại tab **Network**, nhập tên dải mạng private (tên bất kỳ), chọn ***Next*** :
 
     <img src=https://i.imgur.com/nl2Qg57.png>
 
-- sss
+- Tại tab **Subnet** :
 
     <img src=https://i.imgur.com/C25XTfd.png>
 
-- sss
+    - `1` : Nhập tên subnet private network
+    - `2` : Nhập range sẽ làm private network. (**VD :** `192.168.1.0/24`)
+    - `3` : Mục nay để trống thì hệ thống sẽ tự động lấy IP đầu tiên của range. Chủ động điền IP Gateway là `192.168.1.1`
+    - Chọn ***Next*** để sang tab tiếp theo 
+- Tại tab **Subnet Details** :
 
     <img src=https://i.imgur.com/uWnMd4V.png>
 
-- sss
+    - `1` : Tùy chọn bật/tắt DHCP
+    - `2` : Khai báo IP bắt đầu và IP kết thúc của DHCP Pool theo cú pháp `start_IP,end_IP`.
+    - Chọn ***Create*** để kết thúc việc khai báo provider network
+- Dải mạng **private** được tạo thành công :
 
     <img src=https://i.imgur.com/bEHIKby.png>
+
+### **2.3) Cấu hình Security Group**
+- Mặc định thì **OpenStack** chặn toàn bộ các kết nối từ ngoài vào trong các VM, do vậy ta cần thực hiện mở các kết nối này để tiện thao tác.
+- Truy cập vào tab **Project** -> **Networks** -> **Security Group** -> **Manager Rules**
