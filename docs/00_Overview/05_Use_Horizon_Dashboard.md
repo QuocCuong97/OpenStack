@@ -82,4 +82,49 @@
 
 ### **2.3) Cấu hình Security Group**
 - Mặc định thì **OpenStack** chặn toàn bộ các kết nối từ ngoài vào trong các VM, do vậy ta cần thực hiện mở các kết nối này để tiện thao tác.
-- Truy cập vào tab **Project** -> **Networks** -> **Security Group** -> **Manager Rules**
+- Truy cập vào tab **Project** -> **Networks** -> **Security Group** -> **Manager Rules** :
+
+    <img src=https://i.imgur.com/5EgAoTC.png>
+
+- Chọn **Add Rule** :
+
+    <img src=https://i.imgur.com/UL6HPQm.png>
+
+- Tại cửa sổ **Add Rule**, chọn rule cần add, thực hiện lặp lại với các rule `All ICMP`, `All TCP`, `All UDP`, `SSH` => chọn ***Add*** để thêm :
+
+    <img src=https://i.imgur.com/wCmTFYZ.png>
+
+- Các rule sau khi được thêm vào :
+
+    <img src=https://i.imgur.com/i42YP9j.png>
+
+## **3) Tạo Flavor (gói cấu hình)**
+- **Flavor** là các gói cấu hình được quy định trước về CPUs, RAM, Disk dùng để tạo VM
+- Chọn Tab ***Admin*** -> ***Compute*** -> ***Flavors*** -> ***Create Flavor*** :
+
+    <img src=https://i.imgur.com/Xg5GiRg.png>
+
+- Chọn **Create Flavor** :
+
+    <img src=https://i.imgur.com/aJlINfH.png>
+
+- Tại của sổ **Create Flavor**, điền các thông số như **Tên gói (*Name*)**, **VCPUs**, **RAM**, **Root Disk** muốn cấp cho máy ảo, sau đó chọn tab **Flavor Access** :
+
+    <img src=https://i.imgur.com/F3RkI8M.png>
+
+- Tại tab **Flavor Access**, chọn **project** muốn sử dụng **flavor**, sau đó chọn **Create Flavor** để tạo :
+
+    <img src=https://i.imgur.com/EiXOXq1.png>
+
+- **Flavor** sau khi tạo xong :
+
+    <img src=https://i.imgur.com/NJrFIuR.png>
+
+## **4) Tạo VM (máy ảo)**
+- Chọn tab ***Project*** -> ***Compute*** -> ***Instance*** :
+
+    <img src=https://i.imgur.com/hupLsXK.png>
+
+- Chọn **Launch Instance** để thêm instance (VM) mới :
+
+    <img src=https://i.imgur.com/2922r6g.png>
