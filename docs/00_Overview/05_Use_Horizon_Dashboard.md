@@ -2,15 +2,15 @@
 ## **1) Đăng nhập**
 - Đăng nhập vào đường dẫn `http://IP_CONTROLLER/dashboard` :
 
-    <img src=https://i.imgur.com/QzblonM.png>
+    <img src=https://i.imgur.com/jPxBcVv.png>
 
     - Domain: `default`
     - Username: `admin` (đã tạo từ trước)
-    - Password: `P@ssw0rd` (đã tạo từ trước)
+    - Password: `Password123` (đã tạo từ trước)
 
 - Dashboard sau khi đăng nhập :
 
-    <img src=https://i.imgur.com/x5nl7EA.png>
+    <img src=https://i.imgur.com/flCKE1b.png>
 
 ## **2) Khai báo các dải network**
 ### **2.1) Tạo provider network**
@@ -110,7 +110,7 @@
 
 - Tại của sổ **Create Flavor**, điền các thông số như **Tên gói (*Name*)**, **VCPUs**, **RAM**, **Root Disk** muốn cấp cho máy ảo, sau đó chọn tab **Flavor Access** :
 
-    <img src=https://i.imgur.com/F3RkI8M.png>
+    <img src=https://i.imgur.com/p0Sad7f.png>
 
 - Tại tab **Flavor Access**, chọn **project** muốn sử dụng **flavor**, sau đó chọn **Create Flavor** để tạo :
 
@@ -128,3 +128,22 @@
 - Chọn **Launch Instance** để thêm instance (VM) mới :
 
     <img src=https://i.imgur.com/2922r6g.png>
+
+- Tại tab **Details**, nhập tên VM => ***Next*** để qua tab tiếp theo :
+    
+    <img src=https://i.imgur.com/CnRl32M.png>
+
+- Tại tab **Source**, chọn image muốn boot cho VM => ***Next*** để qua tab tiếp theo :
+    
+    <img src=https://i.imgur.com/rbKDMrH.png>
+
+- Tại tab **Flavor**, chọn gói cấu hình cho VM => ***Next*** để qua tab tiếp theo :
+
+    <img src=https://i.imgur.com/YXlHGOk.png>
+
+- Tại tab **Networks**, chọn các dải network muốn cấp cho VM => ***Launch Instance*** để tạo VM:
+
+    <img src=https://i.imgur.com/f41tuxM.png>
+
+    > Đến đây đã đủ thông tin cần thiết để tạo VM, nếu muốn cấu hình thêm, có thể chọn ***Next*** để lướt qua các tab cấu hình khác
+
