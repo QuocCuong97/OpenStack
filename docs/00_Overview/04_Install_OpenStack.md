@@ -5,7 +5,7 @@
 
 ## **Phân hoạch IP**
 
-<img src=https://i.imgur.com/KAdrzgZ.png>
+<img src=https://i.imgur.com/SlZ1Rz5.png>
 
 ## **Các bước cài đặt**
 ### **1) Cài đặt ban đầu trên cả 3 node**
