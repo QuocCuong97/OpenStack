@@ -147,3 +147,10 @@
 
     > Đến đây đã đủ thông tin cần thiết để tạo VM, nếu muốn cấu hình thêm, có thể chọn ***Next*** để lướt qua các tab cấu hình khác
 
+- **VM** sau khi tạo :
+
+    <img src=https://i.imgur.com/QPRJnTG.png>
+
+<!-- - Chọn ***Console*** để truy cập terminal của **VM** :
+
+    <img src=https://i.imgur.com/51yDdWH.png> -->

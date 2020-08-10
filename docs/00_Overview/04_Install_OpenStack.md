@@ -451,6 +451,7 @@
     # wget http://download.cirros-cloud.net/0.5.1/cirros-0.5.1-x86_64-disk.img
     # openstack image create "cirros" --file cirros-0.5.1-x86_64-disk.img --disk-format qcow2 --container-format bare --public
     ```
+    > Đây là một test image của **OpenStack**. Download các image khác tại [đây](https://docs.openstack.org/image-guide/obtain-images.html)
 - **B10 :** Kiểm tra lại xem image đã được up hay chưa :
     ```
     # openstack image list
