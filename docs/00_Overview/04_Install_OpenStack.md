@@ -291,7 +291,7 @@
     > CREATE DATABASE keystone;
     > GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'localhost' IDENTIFIED BY 'Password123';
     > GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' IDENTIFIED BY 'Password123';
-    > GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'10.10.230.205' IDENTIFIED BY 'Password123';
+    > GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'10.10.230.10' IDENTIFIED BY 'Password123';
     > FLUSH PRIVILEGES;
     > exit;
     ```
@@ -966,7 +966,7 @@
     ```
     # systemctl restart httpd.service memcached.service
     ```
-- **B6 :** Truy cập đường dẫn sau trên trình duyệt để vào dashboard. Đăng nhập bằng tài khoản `admin`/ `P@ssw0rd` vừa tạo ở trên:
+- **B6 :** Truy cập đường dẫn sau trên trình duyệt để vào dashboard. Đăng nhập bằng tài khoản `admin`/ `Passw0rd123` vừa tạo ở trên:
     ```
     http://IP_CONTROLLER/dashboard
     ```
