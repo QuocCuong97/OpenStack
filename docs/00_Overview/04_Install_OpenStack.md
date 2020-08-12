@@ -25,7 +25,6 @@
     # echo "10.10.230.10 controller" >> /etc/hosts
     # echo "10.10.230.11 compute1" >> /etc/hosts
     # echo "10.10.230.12 compute2" >> /etc/hosts
-    # echo "nameserver 8.8.8.8" >> /etc/resolv.conf
     ```
 - **B4 :** Thiết lập phân hoạch IP cho node `controller`
 - **B5 :** Disable firewalld và SELinux :
@@ -48,7 +47,6 @@
     # yum -y upgrade -y
     # yum -y install crudini
     # yum -y install python-openstackclient openstack-selinux
-    # yum -y update
     ```
 #### **2.2) Cài đặt NTP**
 ##### **2.2.1) Cài đặt NTP trên node `controller`**
@@ -78,7 +76,7 @@
     ```
 - **B6 :** Khởi động lại chrony sau khi sửa file cấu hình :
     ```
-    # systemctl restart chronyd
+    # systemctl start chronyd
     # systemctl enable chronyd
     ```
 - **B7 :** Kiểm tra lại trạng thái của `chrony` :
@@ -116,7 +114,7 @@
     > 2 node `compute` sẽ đồng bộ thời gian về từ `controller`
 - **B6 :** Khởi động lại chrony sau khi sửa file cấu hình :
     ```
-    # systemctl restart chronyd
+    # systemctl start chronyd
     # systemctl enable chronyd
     ```
 - **B7 :** Kiểm tra lại trạng thái của `chrony` :
@@ -150,8 +148,8 @@
     ```
 - **B4 :** Khởi động lại `memcached` :
     ```
-    # systemctl enable memcached.service
-    # systemctl restart memcached.service
+    # systemctl enable memcached
+    # systemctl restart memcached
     ```
 - **B5 :** Kiểm tra trạng thái dịch vụ :
     ```
@@ -181,8 +179,8 @@
         ```
 - **B3 :** Khởi động **`MariaDB`** :
     ```
-    # systemctl start mariadb.service
-    # systemctl enable mariadb.service
+    # systemctl start mariadb
+    # systemctl enable mariadb
     ```
 - **B4 :** Kiểm tra trạng thái dịch vụ :
     ```
@@ -213,8 +211,8 @@
     ```
 - **B2 :** Khởi động dịch vụ `rabbitmq` :
     ```
-    # systemctl enable rabbitmq-server.service
-    # systemctl start rabbitmq-server.service
+    # systemctl enable rabbitmq-server
+    # systemctl start rabbitmq-server
     ```
 - **B3 :** Khai báo plugin cho `rabbitmq` :
     ```
@@ -226,7 +224,7 @@
     # chmod a+x rabbitmqadmin
     # mv rabbitmqadmin /usr/sbin/
     ```
-- **B5 :** Tạo user `openstack` với mật khẩu tùy ý (**VD :** '`Password123`)
+- **B5 :** Tạo user `openstack` với mật khẩu tùy ý (**VD :** `Password123`)
     ```
     # rabbitmqctl add_user openstack Password123
     ```
@@ -405,7 +403,7 @@
     ```
 - **B3 :** Tạo user, project cho **`glance`** :
     ```
-    # openstack user create  glance --domain default --password Password123
+    # openstack user create glance --domain default --password Password123
     # openstack role add --project service --user glance admin
     # openstack service create --name glance --description "OpenStack Image" image
     # openstack endpoint create --region RegionTest image public http://10.10.230.10:9292
