@@ -11,9 +11,8 @@
 ### **1) Cài đặt ban đầu trên cả 3 node**
 - **B1 :** Update các gói phần mềm và các package cơ bản:
     ```
-    # yum install epel-release -y
+    # yum install epel-release wget -y
     # yum update -y 
-    # yum install -y wget byobu git vim
     ```
 - **B2 :** Thiết lập hostname :
     ```
@@ -26,6 +25,7 @@
     # echo "10.10.230.10 controller" >> /etc/hosts
     # echo "10.10.230.11 compute1" >> /etc/hosts
     # echo "10.10.230.12 compute2" >> /etc/hosts
+    # echo "nameserver 8.8.8.8" >> /etc/resolv.conf
     ```
 - **B4 :** Thiết lập phân hoạch IP cho node `controller`
 - **B5 :** Disable firewalld và SELinux :
@@ -46,8 +46,8 @@
     ```
     # yum -y install centos-release-openstack-train
     # yum -y upgrade -y
-    # yum -y install crudini wget vim
-    # yum -y install python-openstackclient openstack-selinux python2-PyMySQL
+    # yum -y install crudini
+    # yum -y install python-openstackclient openstack-selinux
     # yum -y update
     ```
 #### **2.2) Cài đặt NTP**
@@ -495,16 +495,16 @@
     ```
 - **B6 :** Cấu hình `placement` :
     ```
-    # crudini --set  /etc/placement/placement.conf placement_database connection mysql+pymysql://placement:Password123@10.10.230.10/placement
-    # crudini --set  /etc/placement/placement.conf api auth_strategy keystone
-    # crudini --set  /etc/placement/placement.conf keystone_authtoken auth_url  http://10.10.230.10:5000/v3
-    # crudini --set  /etc/placement/placement.conf keystone_authtoken memcached_servers 10.10.230.10:11211
-    # crudini --set  /etc/placement/placement.conf keystone_authtoken auth_type password
-    # crudini --set  /etc/placement/placement.conf keystone_authtoken project_domain_name Default
-    # crudini --set  /etc/placement/placement.conf keystone_authtoken user_domain_name Default
-    # crudini --set  /etc/placement/placement.conf keystone_authtoken project_name service
-    # crudini --set  /etc/placement/placement.conf keystone_authtoken username placement
-    # crudini --set  /etc/placement/placement.conf keystone_authtoken password Password123
+    # crudini --set /etc/placement/placement.conf placement_database connection mysql+pymysql://placement:Password123@10.10.230.10/placement
+    # crudini --set /etc/placement/placement.conf api auth_strategy keystone
+    # crudini --set /etc/placement/placement.conf keystone_authtoken auth_url  http://10.10.230.10:5000/v3
+    # crudini --set /etc/placement/placement.conf keystone_authtoken memcached_servers 10.10.230.10:11211
+    # crudini --set /etc/placement/placement.conf keystone_authtoken auth_type password
+    # crudini --set /etc/placement/placement.conf keystone_authtoken project_domain_name Default
+    # crudini --set /etc/placement/placement.conf keystone_authtoken user_domain_name Default
+    # crudini --set /etc/placement/placement.conf keystone_authtoken project_name service
+    # crudini --set /etc/placement/placement.conf keystone_authtoken username placement
+    # crudini --set /etc/placement/placement.conf keystone_authtoken password Password123
     ```
 - **B7 :** Khai báo phân quyền cho `placement` :
     ```
@@ -652,7 +652,7 @@
     ```
 - **B2 :** Sao lưu file cấu hình của **`Nova`** :
     ```
-    # cp  /etc/nova/nova.conf  /etc/nova/nova.conf.bak
+    # cp /etc/nova/nova.conf /etc/nova/nova.conf.bak
     ```
 - **B3 :** Cấu hình `nova` (trên `compute1`. Làm tương tự với `compute2` ):
     ```
@@ -733,29 +733,29 @@
     ```
 - **B4 :** Sao lưu các file cấu hình của **`Neutron`** :
     ```
-    # cp  /etc/neutron/neutron.conf  /etc/neutron/neutron.conf.bak
+    # cp /etc/neutron/neutron.conf  etc/neutron/neutron.conf.bak
     # cp /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugins/ml2/ml2_conf.ini.bak
     # cp /etc/neutron/dhcp_agent.ini /etc/neutron/dhcp_agent.ini.bak
     # cp /etc/neutron/metadata_agent.ini /etc/neutron/metadata_agent.ini.bak
     ```
 - **B5 :** Cấu hình file `/etc/neutron/neutron.conf` :
     ```
-    # crudini --set  /etc/neutron/neutron.conf DEFAULT core_plugin ml2
-    # crudini --set  /etc/neutron/neutron.conf DEFAULT service_plugins
-    # crudini --set  /etc/neutron/neutron.conf DEFAULT transport_url rabbit://openstack:Password123@10.10.230.10
-    # crudini --set  /etc/neutron/neutron.conf DEFAULT auth_strategy keystone
-    # crudini --set  /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_status_changes True
-    # crudini --set  /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_data_changes True 
-    # crudini --set  /etc/neutron/neutron.conf database connection  mysql+pymysql://neutron:Password123@10.10.230.10/neutron
-    # crudini --set  /etc/neutron/neutron.conf keystone_authtoken www_authenticate_uri http://10.10.230.10:5000
-    # crudini --set  /etc/neutron/neutron.conf keystone_authtoken auth_url http://10.10.230.10:5000
-    # crudini --set  /etc/neutron/neutron.conf keystone_authtoken memcached_servers 10.10.230.10:11211
-    # crudini --set  /etc/neutron/neutron.conf keystone_authtoken auth_type password
-    # crudini --set  /etc/neutron/neutron.conf keystone_authtoken project_domain_name default
-    # crudini --set  /etc/neutron/neutron.conf keystone_authtoken user_domain_name default
-    # crudini --set  /etc/neutron/neutron.conf keystone_authtoken project_name service
-    # crudini --set  /etc/neutron/neutron.conf keystone_authtoken username neutron
-    # crudini --set  /etc/neutron/neutron.conf keystone_authtoken password Password123
+    # crudini --set /etc/neutron/neutron.conf DEFAULT core_plugin ml2
+    # crudini --set /etc/neutron/neutron.conf DEFAULT service_plugins
+    # crudini --set /etc/neutron/neutron.conf DEFAULT transport_url rabbit://openstack:Password123@10.10.230.10
+    # crudini --set /etc/neutron/neutron.conf DEFAULT auth_strategy keystone
+    # crudini --set /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_status_changes True
+    # crudini --set /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_data_changes True 
+    # crudini --set /etc/neutron/neutron.conf database connection  mysql+pymysql://neutron:Password123@10.10.230.10/neutron
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken www_authenticate_uri http://10.10.230.10:5000
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_url http://10.10.230.10:5000
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken memcached_servers 10.10.230.10:11211
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_type password
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken project_domain_name default
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken user_domain_name default
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken project_name service
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken username neutron
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken password Password123
     # crudini --set /etc/neutron/neutron.conf nova auth_url http://10.10.230.10:5000
     # crudini --set /etc/neutron/neutron.conf nova auth_type password
     # crudini --set /etc/neutron/neutron.conf nova project_domain_name Default
@@ -778,11 +778,11 @@
     ```
 - **B7 :** Sửa file cấu hình `/etc/neutron/plugins/ml2/linuxbridge_agent.ini` :
     ```
-    # crudini --set  /etc/neutron/plugins/ml2/linuxbridge_agent.ini linux_bridge physical_interface_mappings provider:eth0
-    # crudini --set  /etc/neutron/plugins/ml2/linuxbridge_agent.ini vxlan enable_vxlan True
-    # crudini --set  /etc/neutron/plugins/ml2/linuxbridge_agent.ini vxlan local_ip $(ip addr show dev eth2 scope global | grep "inet " | sed -e 's#.*inet ##g' -e 's#/.*##g')
-    # crudini --set  /etc/neutron/plugins/ml2/linuxbridge_agent.ini securitygroup enable_security_group True
-    # crudini --set  /etc/neutron/plugins/ml2/linuxbridge_agent.ini securitygroup firewall_driver neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
+    # crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini linux_bridge physical_interface_mappings provider:eth0
+    # crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini vxlan enable_vxlan True
+    # crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini vxlan local_ip $(ip addr show dev eth2 scope global | grep "inet " | sed -e 's#.*inet ##g' -e 's#/.*##g')
+    # crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini securitygroup enable_security_group True
+    # crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini securitygroup firewall_driver neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
     ```
 - **B8 :** Khai báo `sysctl` :
     ```
@@ -909,14 +909,9 @@
 - **B3 :** Chỉnh sửa file `/etc/openstack-dashboard/local_settings` :
     - Chỉnh sửa 1 số dòng sau :
         ```py
-        OPENSTACK_HOST = "controller"
+        ALLOWED_HOSTS = ['*']
         ```
         ```py
-        ALLOWED_HOSTS = [*]
-        ```
-        ```py
-        SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
-
         CACHES = {
             'default': {
                 'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
@@ -924,20 +919,21 @@
             }
         }
         ```
+        ```py
+        SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
         ```
-        OPENSTACK_KEYSTONE_URL = "http://%s:5000/v3" % OPENSTACK_HOST
+        ```py
+        OPENSTACK_HOST = "controller"
         ```
         ```py
         OPENSTACK_NEUTRON_NETWORK = {
             ...
-            'enable_router': False,
-            'enable_quotas': False,
             'enable_distributed_router': False,
-            'enable_ha_router': False,
-            'enable_lb': False,
-            'enable_firewall': False,
-            'enable_vpn': False,
             'enable_fip_topology_check': False,
+            'enable_ha_router': False,
+            'enable_quotas': False,
+            'enable_router': False,
+            ...   
         }
         ```
         ```py
@@ -960,7 +956,7 @@
     # vi /etc/httpd/conf.d/openstack-dashboard.conf
     ```
     - Thêm vào cuối file dòng sau :
-        ```
+        ```py
         WSGIApplicationGroup %{GLOBAL}
         ```
 - **B5 :** Khởi động lại dịch vụ :
