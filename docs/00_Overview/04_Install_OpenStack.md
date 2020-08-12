@@ -731,7 +731,7 @@
     ```
 - **B4 :** Sao lưu các file cấu hình của **`Neutron`** :
     ```
-    # cp /etc/neutron/neutron.conf  etc/neutron/neutron.conf.bak
+    # cp /etc/neutron/neutron.conf /etc/neutron/neutron.conf.bak
     # cp /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugins/ml2/ml2_conf.ini.bak
     # cp /etc/neutron/dhcp_agent.ini /etc/neutron/dhcp_agent.ini.bak
     # cp /etc/neutron/metadata_agent.ini /etc/neutron/metadata_agent.ini.bak
