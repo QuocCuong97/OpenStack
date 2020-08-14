@@ -38,9 +38,9 @@
     ```
     > Trong đó: `10.5.11.210` là IP Provider của host
     => Output :
-        ```
-        X-Subject-Token: gAAAAABfMh0FxvbC_EFiXVZI8qQKxwOWLgoueZPiBqdwf9-v6BdcvP_7hCfRD7umSRc7Ee_7_sfkiSFp_fKz0emi9g_1ZiESGhO58OoB3xAImsmvhq2vECTfS0LVZqAnzxsqNOIWT2tyxge3ySY5Ko1V_TZQmlfWqXD9Nqm_KTt8CSfaLgFf6Jk
-        ```
+    ```
+    X-Subject-Token: gAAAAABfMh0FxvbC_EFiXVZI8qQKxwOWLgoueZPiBqdwf9-v6BdcvP_7hCfRD7umSRc7Ee_7_sfkiSFp_fKz0emi9g_1ZiESGhO58OoB3xAImsmvhq2vECTfS0LVZqAnzxsqNOIWT2tyxge3ySY5Ko1V_TZQmlfWqXD9Nqm_KTt8CSfaLgFf6Jk
+    ```
 - Sau khi lấy token, có thể import token vào biến môi trường để sử dụng cho tiện :
     ```
     # export OS_TOKEN=gAAAAABfMh0FxvbC_EFiXVZI8qQKxwOWLgoueZPiBqdwf9-v6BdcvP_7hCfRD7umSRc7Ee_7_sfkiSFp_fKz0emi9g_1ZiESGhO58OoB3xAImsmvhq2vECTfS0LVZqAnzxsqNOIWT2tyxge3ySY5Ko1V_TZQmlfWqXD9Nqm_KTt8CSfaLgFf6Jk
