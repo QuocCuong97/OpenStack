@@ -227,8 +227,33 @@
     ```
     # openstack role assignment list --user <user> --project <project_name|project_ID> --names
     ```
+## **3) Câu lệnh `keystone-manage`**
+- `keystone-manage` là công cụ dòng lệnh tương tác với **Keystone** để thiết lập và cập nhật dữ liệu trong việc quản lý các dịch vụ của **keystone**.
+- `keystone-manage` chỉ được sử dụng để hoạt động mà không thể thực hiện thông qua các API của HTTP - như là import/export dữ liệu và di chuyển database.
+- Cú pháp :
+    ```
+    # keystone-manage [options] <action> [additional args]
+    ```
+    - **Options :**
+        - `--help` : hiển thị menu trợ giúp
+    - **Actions :**
+        - `bootstrap` : khởi tạo thông tin tài khoản admin
+        - `credential_migrate` : mã hóa thông tin đăng nhập theo private key mới
+        - `credential_rotate` :
+        - `credential_setup` :
+        - `db_sync` : đồng bộ database
+        - `db_version` : hiển thị phiên bản DB hiện tại
+        - `doctor` :
+        - `domain_config_upload` : upload file cấu hình domain
+        - `fernet_rotate` : xoay khóa trong thư mục chứa fernet key
+        - `fernet_setup` : setup fernet key repo để mã hóa token
+        - `mapping_populate` :
+        - `mapping_purge` :
+        - `mapping_engine` :
+        - `saml_idp_metadata` :
+        - `token_flush` :
 ---------------------------
 Tham khảo thêm
 - https://docs.openstack.org/python-openstackclient/latest/cli/command-objects/role-assignment.html
 - https://docs.openstack.org/python-openstackclient/latest/cli/command-objects/group.html
-- https://docs.openstack.org/keystone/pike/admin/cli-manage-projects-users-and-roles.html
+- https://docs.openstack.org/keystone/train/admin/cli-manage-projects-users-and-roles.html

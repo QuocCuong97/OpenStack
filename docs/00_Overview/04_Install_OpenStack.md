@@ -420,11 +420,11 @@
     ```
 - **B6 :** Cấu hình **`Glance`** :
     ```
-    # crudini --set /etc/glance/glance-api.conf database connection  mysql+pymysql://glance:Password123@10.10.230.10/glance
+    # crudini --set /etc/glance/glance-api.conf database connection mysql+pymysql://glance:Password123@10.10.230.10/glance
     # crudini --set /etc/glance/glance-api.conf keystone_authtoken www_authenticate_uri http://10.10.230.10:5000
-    # crudini --set /etc/glance/glance-api.conf keystone_authtoken auth_url  http://10.10.230.10:5000
+    # crudini --set /etc/glance/glance-api.conf keystone_authtoken auth_url http://10.10.230.10:5000
     # crudini --set /etc/glance/glance-api.conf keystone_authtoken memcached_servers 10.10.230.10:11211
-    # crudini --set /etc/glance/glance-api.conf keystone_authtoken auth_type password 
+    # crudini --set /etc/glance/glance-api.conf keystone_authtoken auth_type password
     # crudini --set /etc/glance/glance-api.conf keystone_authtoken project_domain_name Default
     # crudini --set /etc/glance/glance-api.conf keystone_authtoken user_domain_name Default
     # crudini --set /etc/glance/glance-api.conf keystone_authtoken project_name service
@@ -441,8 +441,8 @@
     ```
 - **B8 :** Khởi động dịch vụ **`glance`** :
     ```
-    # systemctl enable openstack-glance-api.service
-    # systemctl start openstack-glance-api.service
+    # systemctl enable openstack-glance-api
+    # systemctl start openstack-glance-api
     ```
 - **B9 :** Tải image và import vào **`glance`** :
     ```
@@ -476,7 +476,7 @@
     ```
 - **B3 :** Tạo service, gán quyền, endpoint cho `placement` :
     ```
-    # openstack user create  placement --domain default --password Password123
+    # openstack user create placement --domain default --password Password123
     # openstack role add --project service --user placement admin
     # openstack service create --name placement --description "Placement API" placement
     # openstack endpoint create --region RegionTest placement public http://10.10.230.10:8778
@@ -495,7 +495,7 @@
     ```
     # crudini --set /etc/placement/placement.conf placement_database connection mysql+pymysql://placement:Password123@10.10.230.10/placement
     # crudini --set /etc/placement/placement.conf api auth_strategy keystone
-    # crudini --set /etc/placement/placement.conf keystone_authtoken auth_url  http://10.10.230.10:5000/v3
+    # crudini --set /etc/placement/placement.conf keystone_authtoken auth_url http://10.10.230.10:5000/v3
     # crudini --set /etc/placement/placement.conf keystone_authtoken memcached_servers 10.10.230.10:11211
     # crudini --set /etc/placement/placement.conf keystone_authtoken auth_type password
     # crudini --set /etc/placement/placement.conf keystone_authtoken project_domain_name Default
@@ -627,17 +627,8 @@
     <img src=https://i.imgur.com/LvkPXdv.png>
 - **B9 :** Kích hoạt và khởi động các dịch vụ của **`Nova`** :
     ```
-    # systemctl enable \
-    openstack-nova-api.service \
-    openstack-nova-scheduler.service \
-    openstack-nova-conductor.service \
-    openstack-nova-novncproxy.service
-
-    # systemctl start \
-    openstack-nova-api.service \
-    openstack-nova-scheduler.service \
-    openstack-nova-conductor.service \
-    openstack-nova-novncproxy.service
+    # systemctl enable openstack-nova-api openstack-nova-scheduler openstack-nova-conductor openstack-nova-novncproxy
+    # systemctl start openstack-nova-api openstack-nova-scheduler openstack-nova-conductor openstack-nova-novncproxy
     ```
 - **B10 :** Kiểm tra lại xem dịch vụ của `nova` đã hoạt động chưa :
     ```
@@ -660,7 +651,7 @@
     # crudini --set /etc/nova/nova.conf DEFAULT use_neutron true
     # crudini --set /etc/nova/nova.conf DEFAULT firewall_driver nova.virt.firewall.NoopFirewallDriver
     # crudini --set /etc/nova/nova.conf api_database connection mysql+pymysql://nova:Password123@10.10.230.10/nova_api
-    # crudini --set /etc/nova/nova.conf database connection = mysql+pymysql://nova:Password123@10.10.230.10/nova
+    # crudini --set /etc/nova/nova.conf database connection mysql+pymysql://nova:Password123@10.10.230.10/nova
     # crudini --set /etc/nova/nova.conf api auth_strategy keystone
     # crudini --set /etc/nova/nova.conf keystone_authtoken www_authenticate_uri http://10.10.230.10:5000/
     # crudini --set /etc/nova/nova.conf keystone_authtoken auth_url http://10.10.230.10:5000/
@@ -685,12 +676,12 @@
     # crudini --set /etc/nova/nova.conf placement auth_url http://10.10.230.10:5000/v3
     # crudini --set /etc/nova/nova.conf placement username placement
     # crudini --set /etc/nova/nova.conf placement password Password123
-    # crudini --set /etc/nova/nova.conf libvirt virt_type  $(count=$(egrep -c '(vmx|svm)' /proc/cpuinfo); if [ $count -eq 0 ];then   echo "qemu"; else   echo "kvm"; fi)
+    # crudini --set /etc/nova/nova.conf libvirt virt_type $(count=$(egrep -c '(vmx|svm)' /proc/cpuinfo); if [ $count -eq 0 ];then echo "qemu"; else echo "kvm"; fi)
     ```
 - **B4 :** Khởi động **`Nova`** :
     ```
-    # systemctl enable libvirtd.service openstack-nova-compute.service
-    # systemctl start libvirtd.service openstack-nova-compute.service
+    # systemctl enable libvirtd openstack-nova-compute
+    # systemctl start libvirtd openstack-nova-compute
     ```
 #### **2.10.3) Thêm các node `compute` vào hệ thống (trên node `controller`)**
 - **B1 :** Kiểm tra các node `compute` đã up hay chưa :
@@ -744,7 +735,7 @@
     # crudini --set /etc/neutron/neutron.conf DEFAULT auth_strategy keystone
     # crudini --set /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_status_changes True
     # crudini --set /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_data_changes True 
-    # crudini --set /etc/neutron/neutron.conf database connection  mysql+pymysql://neutron:Password123@10.10.230.10/neutron
+    # crudini --set /etc/neutron/neutron.conf database connection mysql+pymysql://neutron:Password123@10.10.230.10/neutron
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken www_authenticate_uri http://10.10.230.10:5000
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_url http://10.10.230.10:5000
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken memcached_servers 10.10.230.10:11211
@@ -800,12 +791,8 @@
     ```
 - **B11 :** Khởi động dịch vụ **`neutron`** :
     ```
-    # systemctl enable neutron-server.service \
-    neutron-linuxbridge-agent.service neutron-dhcp-agent.service \
-    neutron-metadata-agent.service
-    # systemctl start neutron-server.service \
-    neutron-linuxbridge-agent.service neutron-dhcp-agent.service \
-    neutron-metadata-agent.service
+    # systemctl enable neutron-server neutron-linuxbridge-agent neutron-dhcp-agent neutron-metadata-agent
+    # systemctl start neutron-server neutron-linuxbridge-agent neutron-dhcp-agent neutron-metadata-agent
     ```
 - **B12 :** Kiểm tra lại trạng thái dịch vụ :
     ```
@@ -884,16 +871,12 @@
     ```
 - **B9 :** Khởi động **`Neutron`** :
     ```
-    # systemctl enable neutron-linuxbridge-agent.service
-    # systemctl enable neutron-metadata-agent.service
-    # systemctl enable neutron-dhcp-agent.service
-    # systemctl start neutron-linuxbridge-agent.service
-    # systemctl start neutron-metadata-agent.service
-    # systemctl start neutron-dhcp-agent.service
+    # systemctl enable neutron-linuxbridge-agent neutron-metadata-agent neutron-dhcp-agent
+    # systemctl start neutron-linuxbridge-agent neutron-metadata-agent neutron-dhcp-agent
     ```
 - **B10 :** Khởi động lại dịch vụ `openstack-nova-compute` :
     ```
-    # systemctl restart openstack-nova-compute.service
+    # systemctl restart openstack-nova-compute
     ```
 ### **2.12) Cài đặt và cấu hình `Horizon` trên node `controller`**
 - **B1 :** Cài đặt `openstack-dashboard` :
@@ -959,7 +942,7 @@
         ```
 - **B5 :** Khởi động lại dịch vụ :
     ```
-    # systemctl restart httpd.service memcached.service
+    # systemctl restart httpd memcached
     ```
 - **B6 :** Truy cập đường dẫn sau trên trình duyệt để vào dashboard. Đăng nhập bằng tài khoản `admin`/ `Passw0rd123` vừa tạo ở trên:
     ```
