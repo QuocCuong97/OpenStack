@@ -64,12 +64,12 @@
     ```
 - **B4 :** Sửa file cấu hình :
     ```
-    # sed -i s'/0.centos.pool.ntp.org/129.6.15.28/'g /etc/chrony.conf
+    # sed -i s'/0.centos.pool.ntp.org/128.138.140.44/'g /etc/chrony.conf
     # sed -i s'/server 1.centos.pool.ntp.org iburst/#server 1.centos.pool.ntp.org iburst/'g /etc/chrony.conf
     # sed -i s'/server 2.centos.pool.ntp.org iburst/#server 2.centos.pool.ntp.org iburst/'g /etc/chrony.conf
     # sed -i s'/server 3.centos.pool.ntp.org iburst/#server 3.centos.pool.ntp.org iburst/'g /etc/chrony.conf
     ```
-    > Node `controller` sẽ cập nhật thời gian từ internet hoặc máy chủ NTP. Các máy compute còn lại sẽ đồng bộ thời gian từ `controller`. Trong bài lab này sẽ sử dụng địa chỉ NTP của **NIST** là `129.6.15.28` (có thể thay thế bằng IP của NTP Server trong mạng).
+    > Node `controller` sẽ cập nhật thời gian từ internet hoặc máy chủ NTP. Các máy compute còn lại sẽ đồng bộ thời gian từ `controller`. Trong bài lab này sẽ sử dụng địa chỉ NTP của **NIST** là `128.138.140.44` (có thể thay thế bằng IP của NTP Server trong mạng).
 - **B5 :** Để cho phép các node `compute` kết nối với `chrony` trên node `controller`, ta sẽ sửa file cấu hình allow subnet chung của các node :
     ```
     # sed -i s'|#allow 192.168.0.0/16|allow 10.10.230.0/24|'g /etc/chrony.conf
@@ -149,7 +149,7 @@
 - **B4 :** Khởi động lại `memcached` :
     ```
     # systemctl enable memcached
-    # systemctl restart memcached
+    # systemctl start memcached
     ```
 - **B5 :** Kiểm tra trạng thái dịch vụ :
     ```
@@ -578,7 +578,7 @@
     # crudini --set /etc/nova/nova.conf DEFAULT transport_url rabbit://openstack:Password123@10.10.230.10:5672/
     # crudini --set /etc/nova/nova.conf api_database connection mysql+pymysql://nova:Password123@10.10.230.10/nova_api
     # crudini --set /etc/nova/nova.conf database connection mysql+pymysql://nova:Password123@10.10.230.10/nova
-    # crudini --set /etc/nova/nova.conf api connection  mysql+pymysql://nova:Password123@10.10.230.10/nova
+    # crudini --set /etc/nova/nova.conf api connection mysql+pymysql://nova:Password123@10.10.230.10/nova
     # crudini --set /etc/nova/nova.conf keystone_authtoken www_authenticate_uri http://10.10.230.10:5000/
     # crudini --set /etc/nova/nova.conf keystone_authtoken auth_url http://10.10.230.10:5000/
     # crudini --set /etc/nova/nova.conf keystone_authtoken memcached_servers 10.10.230.10:11211
@@ -634,6 +634,8 @@
     ```
     # openstack compute service list
     ```
+    <img src=https://i.imgur.com/jhhwhru.png>
+    
 #### **2.10.2) Cài đặt `Nova` trên các node `compute`**
 - **B1 :** Cài đặt các gói của `nova` :
     ```
