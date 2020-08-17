@@ -146,7 +146,7 @@
     ```
 - **B3 :** Cấu hình dịch vụ để sử dụng địa chỉ IP quản lý của node `controller`. Điều này là để cho phép truy cập từ các node khác thông qua dải VLAN `MGNT` (dải management). Chỉnh sửa file cấu hình `memcached` như sau :
     ```
-    # sed -i "s/-l 127.0.0.1,::1/-l 127.0.0.1,::1,10.10.230.10/g" /etc/sysconfig/memcached
+    # sed -i "s/-l 127.0.0.1,::1/-l 127.0.0.1,::1,controller/g" /etc/sysconfig/memcached
     ```
 - **B4 :** Khởi động lại `memcached` :
     ```
@@ -173,6 +173,7 @@
         ```
         [mysqld]
         bind-address = 10.10.230.10
+
         default-storage-engine = innodb
         innodb_file_per_table = on
         max_connections = 4096
@@ -291,7 +292,6 @@
     > CREATE DATABASE keystone;
     > GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'localhost' IDENTIFIED BY 'Password123';
     > GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' IDENTIFIED BY 'Password123';
-    > GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'10.10.230.10' IDENTIFIED BY 'Password123';
     > FLUSH PRIVILEGES;
     > exit;
     ```
@@ -433,7 +433,7 @@
     # crudini --set /etc/glance/glance-api.conf keystone_authtoken password Password123
     # crudini --set /etc/glance/glance-api.conf paste_deploy flavor keystone
     # crudini --set /etc/glance/glance-api.conf glance_store stores file,http
-    # crudini --set /etc/glance/glance-api.conf glance_store default_store filed
+    # crudini --set /etc/glance/glance-api.conf glance_store default_store file
     # crudini --set /etc/glance/glance-api.conf glance_store filesystem_store_datadir /var/lib/glance/images/
     ```
 - **B7 :** Đồng bộ để sync database cho **`Glance`** :
@@ -677,8 +677,6 @@
     # crudini --set /etc/nova/nova.conf placement auth_url http://controller:5000/v3
     # crudini --set /etc/nova/nova.conf placement username placement
     # crudini --set /etc/nova/nova.conf placement password Password123
-
-    # crudini --set /etc/nova/nova.conf libvirt virt_type qemu
     ```
 - **B4 :** Khởi động **`Nova`** :
     ```
