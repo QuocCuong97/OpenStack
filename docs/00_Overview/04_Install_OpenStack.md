@@ -90,6 +90,7 @@
     # chronyc sources
     ```
     <img src=https://i.imgur.com/8aiOBtf.png>
+    
     > Dấu "`*`" thể hiện việc đồng bộ thành công
 #### **2.2.2) Cài đặt NTP trên các node `compute`**
 - **B1 :** Cài đặt `chrony` sử dụng làm NTP :
@@ -156,7 +157,7 @@
     # systemctl status memcached
     ```
     <img src=https://i.imgur.com/PenIOOl.png>
-    
+
 ### **2.4) Cài đặt và cấu hình `MariaDB` trên node `controller`**
 - Hầu hết các dịch vụ của **OpenStack** sử dụng cơ sở dữ liệu **SQL** để lưu thông tin. DB thường sẽ chạy trên node `controller`. Các dịch vụ **OpenStack** cũng hỗ trợ các cơ sở dữ liệu SQL khác bao gồm **PostgreSQL**.
 - **B1 :** Cài đặt **`MariaDB`** :
@@ -378,8 +379,8 @@
     > Kết quả trả về  như trên có nghĩa **`Keystone`** hoạt động bình thường
 - **B16 :** Khai báo user `demo`, project `demo` :
     ```
-    # openstack project create service --domain default --description "Service Project"
-    # openstack project create demo --domain default --description "Demo Project"
+    # openstack project create --domain default --description "Service Project" service
+    # openstack project create --domain default --description "Demo Project" demo
     # openstack user create demo --domain default --password Password123
     # openstack role create user
     # openstack role add --project demo --user demo user
@@ -394,7 +395,6 @@
     > CREATE DATABASE glance;
     > GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'localhost' IDENTIFIED BY 'Password123';
     > GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'%' IDENTIFIED BY 'Password123';
-    > GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'10.10.230.10' IDENTIFIED BY 'Password123';
     > FLUSH PRIVILEGES;
     > exit;
     ```
@@ -426,8 +426,8 @@
     # crudini --set /etc/glance/glance-api.conf keystone_authtoken auth_url http://controller:5000
     # crudini --set /etc/glance/glance-api.conf keystone_authtoken memcached_servers controller:11211
     # crudini --set /etc/glance/glance-api.conf keystone_authtoken auth_type password
-    # crudini --set /etc/glance/glance-api.conf keystone_authtoken project_domain_name default
-    # crudini --set /etc/glance/glance-api.conf keystone_authtoken user_domain_name default
+    # crudini --set /etc/glance/glance-api.conf keystone_authtoken project_domain_name Default
+    # crudini --set /etc/glance/glance-api.conf keystone_authtoken user_domain_name Default
     # crudini --set /etc/glance/glance-api.conf keystone_authtoken project_name service
     # crudini --set /etc/glance/glance-api.conf keystone_authtoken username glance
     # crudini --set /etc/glance/glance-api.conf keystone_authtoken password Password123
@@ -467,7 +467,6 @@
     > CREATE DATABASE placement;
     > GRANT ALL PRIVILEGES ON placement.* TO 'placement'@'localhost' IDENTIFIED BY 'Password123';
     > GRANT ALL PRIVILEGES ON placement.* TO 'placement'@'%' IDENTIFIED BY 'Password123';
-    > GRANT ALL PRIVILEGES ON placement.* TO 'placement'@'10.10.230.10' IDENTIFIED BY 'Password123';
     > FLUSH PRIVILEGES;
     > exit;
     ```
@@ -499,8 +498,8 @@
     # crudini --set /etc/placement/placement.conf keystone_authtoken auth_url http://controller:5000/v3
     # crudini --set /etc/placement/placement.conf keystone_authtoken memcached_servers controller:11211
     # crudini --set /etc/placement/placement.conf keystone_authtoken auth_type password
-    # crudini --set /etc/placement/placement.conf keystone_authtoken project_domain_name default
-    # crudini --set /etc/placement/placement.conf keystone_authtoken user_domain_name default
+    # crudini --set /etc/placement/placement.conf keystone_authtoken project_domain_name Default
+    # crudini --set /etc/placement/placement.conf keystone_authtoken user_domain_name Default
     # crudini --set /etc/placement/placement.conf keystone_authtoken project_name service
     # crudini --set /etc/placement/placement.conf keystone_authtoken username placement
     # crudini --set /etc/placement/placement.conf keystone_authtoken password Password123
@@ -582,8 +581,8 @@
     # crudini --set /etc/nova/nova.conf keystone_authtoken auth_url http://controller:5000/
     # crudini --set /etc/nova/nova.conf keystone_authtoken memcached_servers controller:11211
     # crudini --set /etc/nova/nova.conf keystone_authtoken auth_type password
-    # crudini --set /etc/nova/nova.conf keystone_authtoken project_domain_name default
-    # crudini --set /etc/nova/nova.conf keystone_authtoken user_domain_name default
+    # crudini --set /etc/nova/nova.conf keystone_authtoken project_domain_name Default
+    # crudini --set /etc/nova/nova.conf keystone_authtoken user_domain_name Default
     # crudini --set /etc/nova/nova.conf keystone_authtoken project_name service
     # crudini --set /etc/nova/nova.conf keystone_authtoken username nova
     # crudini --set /etc/nova/nova.conf keystone_authtoken password Password123
@@ -593,10 +592,10 @@
     # crudini --set /etc/nova/nova.conf glance api_servers http://controller:9292
     # crudini --set /etc/nova/nova.conf oslo_concurrency lock_path /var/lib/nova/tmp
     # crudini --set /etc/nova/nova.conf placement region_name RegionOne
-    # crudini --set /etc/nova/nova.conf placement project_domain_name default
+    # crudini --set /etc/nova/nova.conf placement project_domain_name Default
     # crudini --set /etc/nova/nova.conf placement project_name service
     # crudini --set /etc/nova/nova.conf placement auth_type password
-    # crudini --set /etc/nova/nova.conf placement user_domain_name default
+    # crudini --set /etc/nova/nova.conf placement user_domain_name Default
     # crudini --set /etc/nova/nova.conf placement auth_url http://controller:5000/v3
     # crudini --set /etc/nova/nova.conf placement username placement
     # crudini --set /etc/nova/nova.conf placement password Password123
@@ -605,8 +604,8 @@
     # crudini --set /etc/nova/nova.conf neutron auth_url http://controller:5000
     # crudini --set /etc/nova/nova.conf neutron region_name RegionOne
     # crudini --set /etc/nova/nova.conf neutron auth_type password
-    # crudini --set /etc/nova/nova.conf neutron project_domain_name default
-    # crudini --set /etc/nova/nova.conf neutron user_domain_name default
+    # crudini --set /etc/nova/nova.conf neutron project_domain_name Default
+    # crudini --set /etc/nova/nova.conf neutron user_domain_name Default
     # crudini --set /etc/nova/nova.conf neutron project_name service
     # crudini --set /etc/nova/nova.conf neutron username neutron
     # crudini --set /etc/nova/nova.conf neutron password Password123
@@ -659,8 +658,8 @@
     # crudini --set /etc/nova/nova.conf keystone_authtoken auth_url http://controller:5000/
     # crudini --set /etc/nova/nova.conf keystone_authtoken memcached_servers controller:11211
     # crudini --set /etc/nova/nova.conf keystone_authtoken auth_type password
-    # crudini --set /etc/nova/nova.conf keystone_authtoken project_domain_name default
-    # crudini --set /etc/nova/nova.conf keystone_authtoken user_domain_name default
+    # crudini --set /etc/nova/nova.conf keystone_authtoken project_domain_name Default
+    # crudini --set /etc/nova/nova.conf keystone_authtoken user_domain_name Default
     # crudini --set /etc/nova/nova.conf keystone_authtoken project_name service
     # crudini --set /etc/nova/nova.conf keystone_authtoken username nova
     # crudini --set /etc/nova/nova.conf keystone_authtoken password Password123
@@ -671,10 +670,10 @@
     # crudini --set /etc/nova/nova.conf glance api_servers http://controller:9292
     # crudini --set /etc/nova/nova.conf oslo_concurrency lock_path /var/lib/nova/tmp
     # crudini --set /etc/nova/nova.conf placement region_name RegionOne
-    # crudini --set /etc/nova/nova.conf placement project_domain_name default
+    # crudini --set /etc/nova/nova.conf placement project_domain_name Default
     # crudini --set /etc/nova/nova.conf placement project_name service
     # crudini --set /etc/nova/nova.conf placement auth_type password
-    # crudini --set /etc/nova/nova.conf placement user_domain_name default
+    # crudini --set /etc/nova/nova.conf placement user_domain_name Default
     # crudini --set /etc/nova/nova.conf placement auth_url http://controller:5000/v3
     # crudini --set /etc/nova/nova.conf placement username placement
     # crudini --set /etc/nova/nova.conf placement password Password123
@@ -742,15 +741,15 @@
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_url http://controller:5000
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken memcached_servers controller:11211
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_type password
-    # crudini --set /etc/neutron/neutron.conf keystone_authtoken project_domain_name default
-    # crudini --set /etc/neutron/neutron.conf keystone_authtoken user_domain_name default
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken project_domain_name Default
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken user_domain_name Default
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken project_name service
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken username neutron
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken password Password123
     # crudini --set /etc/neutron/neutron.conf nova auth_url http://controller:5000
     # crudini --set /etc/neutron/neutron.conf nova auth_type password
-    # crudini --set /etc/neutron/neutron.conf nova project_domain_name default
-    # crudini --set /etc/neutron/neutron.conf nova user_domain_name default
+    # crudini --set /etc/neutron/neutron.conf nova project_domain_name Default
+    # crudini --set /etc/neutron/neutron.conf nova user_domain_name Default
     # crudini --set /etc/neutron/neutron.conf nova region_name RegionOne
     # crudini --set /etc/neutron/neutron.conf nova project_name service
     # crudini --set /etc/neutron/neutron.conf nova username nova
@@ -808,8 +807,8 @@
     # crudini --set /etc/nova/nova.conf neutron url http://controller:9696
     # crudini --set /etc/nova/nova.conf neutron auth_url http://controller:5000
     # crudini --set /etc/nova/nova.conf neutron auth_type password
-    # crudini --set /etc/nova/nova.conf neutron project_domain_name default
-    # crudini --set /etc/nova/nova.conf neutron user_domain_name default
+    # crudini --set /etc/nova/nova.conf neutron project_domain_name Default
+    # crudini --set /etc/nova/nova.conf neutron user_domain_name Default
     # crudini --set /etc/nova/nova.conf neutron project_name service
     # crudini --set /etc/nova/nova.conf neutron username neutron
     # crudini --set /etc/nova/nova.conf neutron region_name RegionOne
@@ -838,8 +837,8 @@
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_url http://controller:5000
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken memcached_servers controller:11211
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_type password
-    # crudini --set /etc/neutron/neutron.conf keystone_authtoken project_domain_name default
-    # crudini --set /etc/neutron/neutron.conf keystone_authtoken user_domain_name default
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken project_domain_name Default
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken user_domain_name Default
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken project_name service
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken username neutron
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken password Password123
