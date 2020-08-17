@@ -12,7 +12,7 @@
 - **B1 :** Update các gói phần mềm và các package cơ bản:
     ```
     # yum install epel-release wget -y
-    # yum update -y 
+    # yum update -y
     ```
 - **B2 :** Thiết lập hostname :
     ```
@@ -156,6 +156,7 @@
     # systemctl status memcached
     ```
     <img src=https://i.imgur.com/PenIOOl.png>
+    
 ### **2.4) Cài đặt và cấu hình `MariaDB` trên node `controller`**
 - Hầu hết các dịch vụ của **OpenStack** sử dụng cơ sở dữ liệu **SQL** để lưu thông tin. DB thường sẽ chạy trên node `controller`. Các dịch vụ **OpenStack** cũng hỗ trợ các cơ sở dữ liệu SQL khác bao gồm **PostgreSQL**.
 - **B1 :** Cài đặt **`MariaDB`** :
@@ -245,7 +246,7 @@
     - Giao diện **`RabbitMQ`** khi đăng nhập :
 
         <img src=https://i.imgur.com/Nt8X0pv.png>
-    
+
 ### **2.6) Cài đặt và cấu hình **`Etcd`** trên node `controller`**
 - **`ETCD`** là một ứng dụng lưu trữ dữ liệu phân tán theo theo kiểu ***key-value***, nó được các services trong **OpenStack** sử dụng lưu trữ cấu hình, theo dõi các trạng thái dịch vụ và các tình huống khác.
 - **B1 :** Cài đặt `etcd` :
@@ -303,7 +304,7 @@
     ```
 - **B4 :** Dùng lệnh `crudini` để sửa các dòng cần thiết trong file cấu hình của **`Keystone`** :
     ```
-    # crudini --set /etc/keystone/keystone.conf database connection mysql+pymysql://keystone:Password123@10.10.230.10/keystone
+    # crudini --set /etc/keystone/keystone.conf database connection mysql+pymysql://keystone:Password123@controller/keystone
     # crudini --set /etc/keystone/keystone.conf token provider fernet
     ```
 - **B5 :** Phân quyền lại cho file cấu hình của **`Keystone`** :
@@ -323,10 +324,10 @@
 - **B8 :** Thiết lập bootstrap cho **`Keystone`** :
     ```
     # keystone-manage bootstrap --bootstrap-password Password123 \
-    --bootstrap-admin-url http://10.10.230.10:5000/v3/ \
-    --bootstrap-internal-url http://10.10.230.10:5000/v3/ \
-    --bootstrap-public-url http://10.10.230.10:5000/v3/ \
-    --bootstrap-region-id RegionTest
+    --bootstrap-admin-url http://controller:5000/v3/ \
+    --bootstrap-internal-url http://controller:5000/v3/ \
+    --bootstrap-public-url http://controller:5000/v3/ \
+    --bootstrap-region-id RegionOne
     ```
 - **B9 :** **`Keystone`** sẽ sử dụng httpd để chạy service, các request vào **`keystone`** sẽ thông qua `httpd`. Do vậy cần cấu hình `httpd` để **`keystone`** sử dụng. Sửa dòng `95` trong file cấu hình `/etc/httpd/conf/httpd.conf` của dịch vụ `httpd` :
     ```
@@ -360,7 +361,7 @@
         export OS_PROJECT_NAME=admin
         export OS_USER_DOMAIN_NAME=Default
         export OS_PROJECT_DOMAIN_NAME=Default
-        export OS_AUTH_URL=http://10.10.230.10:5000/v3
+        export OS_AUTH_URL=http://controller:5000/v3
         export OS_IDENTITY_API_VERSION=3
         export OS_IMAGE_API_VERSION=2
         ```
@@ -377,8 +378,8 @@
     > Kết quả trả về  như trên có nghĩa **`Keystone`** hoạt động bình thường
 - **B16 :** Khai báo user `demo`, project `demo` :
     ```
-    # openstack project create service --domain default --description "Service Project" 
-    # openstack project create demo --domain default --description "Demo Project" 
+    # openstack project create service --domain default --description "Service Project"
+    # openstack project create demo --domain default --description "Demo Project"
     # openstack user create demo --domain default --password Password123
     # openstack role create user
     # openstack role add --project demo --user demo user
@@ -406,9 +407,9 @@
     # openstack user create glance --domain default --password Password123
     # openstack role add --project service --user glance admin
     # openstack service create --name glance --description "OpenStack Image" image
-    # openstack endpoint create --region RegionTest image public http://10.10.230.10:9292
-    # openstack endpoint create --region RegionTest image internal http://10.10.230.10:9292
-    # openstack endpoint create --region RegionTest image admin http://10.10.230.10:9292
+    # openstack endpoint create --region RegionOne image public http://controller:9292
+    # openstack endpoint create --region RegionOne image internal http://controller:9292
+    # openstack endpoint create --region RegionOne image admin http://controller:9292
     ```
 - **B4 :** Cài đặt `glance` và các package cần thiết :
     ```
@@ -420,19 +421,19 @@
     ```
 - **B6 :** Cấu hình **`Glance`** :
     ```
-    # crudini --set /etc/glance/glance-api.conf database connection mysql+pymysql://glance:Password123@10.10.230.10/glance
-    # crudini --set /etc/glance/glance-api.conf keystone_authtoken www_authenticate_uri http://10.10.230.10:5000
-    # crudini --set /etc/glance/glance-api.conf keystone_authtoken auth_url http://10.10.230.10:5000
-    # crudini --set /etc/glance/glance-api.conf keystone_authtoken memcached_servers 10.10.230.10:11211
+    # crudini --set /etc/glance/glance-api.conf database connection mysql+pymysql://glance:Password123@controller/glance
+    # crudini --set /etc/glance/glance-api.conf keystone_authtoken www_authenticate_uri http://controller:5000
+    # crudini --set /etc/glance/glance-api.conf keystone_authtoken auth_url http://controller:5000
+    # crudini --set /etc/glance/glance-api.conf keystone_authtoken memcached_servers controller:11211
     # crudini --set /etc/glance/glance-api.conf keystone_authtoken auth_type password
-    # crudini --set /etc/glance/glance-api.conf keystone_authtoken project_domain_name Default
-    # crudini --set /etc/glance/glance-api.conf keystone_authtoken user_domain_name Default
+    # crudini --set /etc/glance/glance-api.conf keystone_authtoken project_domain_name default
+    # crudini --set /etc/glance/glance-api.conf keystone_authtoken user_domain_name default
     # crudini --set /etc/glance/glance-api.conf keystone_authtoken project_name service
     # crudini --set /etc/glance/glance-api.conf keystone_authtoken username glance
     # crudini --set /etc/glance/glance-api.conf keystone_authtoken password Password123
     # crudini --set /etc/glance/glance-api.conf paste_deploy flavor keystone
     # crudini --set /etc/glance/glance-api.conf glance_store stores file,http
-    # crudini --set /etc/glance/glance-api.conf glance_store default_store file
+    # crudini --set /etc/glance/glance-api.conf glance_store default_store filed
     # crudini --set /etc/glance/glance-api.conf glance_store filesystem_store_datadir /var/lib/glance/images/
     ```
 - **B7 :** Đồng bộ để sync database cho **`Glance`** :
@@ -479,9 +480,9 @@
     # openstack user create placement --domain default --password Password123
     # openstack role add --project service --user placement admin
     # openstack service create --name placement --description "Placement API" placement
-    # openstack endpoint create --region RegionTest placement public http://10.10.230.10:8778
-    # openstack endpoint create --region RegionTest placement internal http://10.10.230.10:8778
-    # openstack endpoint create --region RegionTest placement admin http://10.10.230.10:8778
+    # openstack endpoint create --region RegionOne placement public http://controller:8778
+    # openstack endpoint create --region RegionOne placement internal http://controller:8778
+    # openstack endpoint create --region RegionOne placement admin http://controller:8778
     ```
 - **B4 :** Cài đặt `placement` :
     ```
@@ -493,13 +494,13 @@
     ```
 - **B6 :** Cấu hình `placement` :
     ```
-    # crudini --set /etc/placement/placement.conf placement_database connection mysql+pymysql://placement:Password123@10.10.230.10/placement
+    # crudini --set /etc/placement/placement.conf placement_database connection mysql+pymysql://placement:Password123@controller/placement
     # crudini --set /etc/placement/placement.conf api auth_strategy keystone
-    # crudini --set /etc/placement/placement.conf keystone_authtoken auth_url http://10.10.230.10:5000/v3
-    # crudini --set /etc/placement/placement.conf keystone_authtoken memcached_servers 10.10.230.10:11211
+    # crudini --set /etc/placement/placement.conf keystone_authtoken auth_url http://controller:5000/v3
+    # crudini --set /etc/placement/placement.conf keystone_authtoken memcached_servers controller:11211
     # crudini --set /etc/placement/placement.conf keystone_authtoken auth_type password
-    # crudini --set /etc/placement/placement.conf keystone_authtoken project_domain_name Default
-    # crudini --set /etc/placement/placement.conf keystone_authtoken user_domain_name Default
+    # crudini --set /etc/placement/placement.conf keystone_authtoken project_domain_name default
+    # crudini --set /etc/placement/placement.conf keystone_authtoken user_domain_name default
     # crudini --set /etc/placement/placement.conf keystone_authtoken project_name service
     # crudini --set /etc/placement/placement.conf keystone_authtoken username placement
     # crudini --set /etc/placement/placement.conf keystone_authtoken password Password123
@@ -536,15 +537,12 @@
     > CREATE DATABASE nova_api;
     > GRANT ALL PRIVILEGES ON nova_api.* TO 'nova'@'localhost' IDENTIFIED BY 'Password123';
     > GRANT ALL PRIVILEGES ON nova_api.* TO 'nova'@'%' IDENTIFIED BY 'Password123';
-    > GRANT ALL PRIVILEGES ON nova_api.* TO 'nova'@'10.10.230.10' IDENTIFIED BY 'Password123';
     > CREATE DATABASE nova;
     > GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'localhost' IDENTIFIED BY 'Password123';
     > GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'%' IDENTIFIED BY 'Password123';
-    > GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'10.10.230.10' IDENTIFIED BY 'Password123';
     > CREATE DATABASE nova_cell0;
     > GRANT ALL PRIVILEGES ON nova_cell0.* TO 'nova'@'localhost' IDENTIFIED BY 'Password123';
     > GRANT ALL PRIVILEGES ON nova_cell0.* TO 'nova'@'%' IDENTIFIED BY 'Password123';
-    > GRANT ALL PRIVILEGES ON nova_cell0.* TO 'nova'@'10.10.230.10' IDENTIFIED BY 'Password123';
     > FLUSH PRIVILEGES;
     > exit
     ```
@@ -557,9 +555,9 @@
     # openstack user create nova --domain default --password Password123
     # openstack role add --project service --user nova admin
     # openstack service create --name nova --description "OpenStack Compute" compute
-    # openstack endpoint create --region RegionTest compute public http://10.10.230.10:8774/v2.1
-    # openstack endpoint create --region RegionTest compute internal http://10.10.230.10:8774/v2.1
-    # openstack endpoint create --region RegionTest compute admin http://10.10.230.10:8774/v2.1
+    # openstack endpoint create --region RegionOne compute public http://controller:8774/v2.1
+    # openstack endpoint create --region RegionOne compute internal http://controller:8774/v2.1
+    # openstack endpoint create --region RegionOne compute admin http://controller:8774/v2.1
     ```
 - **B4 :** Cài đặt `nova` và các package đi kèm :
     ```
@@ -572,41 +570,43 @@
 - **B6 :** Cấu hình **`Nova`** :
     ```
     # crudini --set /etc/nova/nova.conf DEFAULT my_ip 10.10.230.10
-    # crudini --set /etc/nova/nova.conf DEFAULT use_neutron true    
+    # crudini --set /etc/nova/nova.conf DEFAULT use_neutron true
     # crudini --set /etc/nova/nova.conf DEFAULT firewall_driver nova.virt.firewall.NoopFirewallDriver
     # crudini --set /etc/nova/nova.conf DEFAULT enabled_apis osapi_compute,metadata
-    # crudini --set /etc/nova/nova.conf DEFAULT transport_url rabbit://openstack:Password123@10.10.230.10:5672/
-    # crudini --set /etc/nova/nova.conf api_database connection mysql+pymysql://nova:Password123@10.10.230.10/nova_api
-    # crudini --set /etc/nova/nova.conf database connection mysql+pymysql://nova:Password123@10.10.230.10/nova
-    # crudini --set /etc/nova/nova.conf api connection mysql+pymysql://nova:Password123@10.10.230.10/nova
-    # crudini --set /etc/nova/nova.conf keystone_authtoken www_authenticate_uri http://10.10.230.10:5000/
-    # crudini --set /etc/nova/nova.conf keystone_authtoken auth_url http://10.10.230.10:5000/
-    # crudini --set /etc/nova/nova.conf keystone_authtoken memcached_servers 10.10.230.10:11211
+    # crudini --set /etc/nova/nova.conf DEFAULT transport_url rabbit://openstack:Password123@controller:5672/
+    # crudini --set /etc/nova/nova.conf api_database connection mysql+pymysql://nova:Password123@controller/nova_api
+    # crudini --set /etc/nova/nova.conf database connection mysql+pymysql://nova:Password123@controller/nova
+    # crudini --set /etc/nova/nova.conf api connection mysql+pymysql://nova:Password123@controller/nova
+    # crudini --set /etc/nova/nova.conf api auth_strategy keystone
+    # crudini --set /etc/nova/nova.conf keystone_authtoken www_authenticate_uri http://controller:5000/
+    # crudini --set /etc/nova/nova.conf keystone_authtoken auth_url http://controller:5000/
+    # crudini --set /etc/nova/nova.conf keystone_authtoken memcached_servers controller:11211
     # crudini --set /etc/nova/nova.conf keystone_authtoken auth_type password
-    # crudini --set /etc/nova/nova.conf keystone_authtoken project_domain_name Default
-    # crudini --set /etc/nova/nova.conf keystone_authtoken user_domain_name Default
+    # crudini --set /etc/nova/nova.conf keystone_authtoken project_domain_name default
+    # crudini --set /etc/nova/nova.conf keystone_authtoken user_domain_name default
     # crudini --set /etc/nova/nova.conf keystone_authtoken project_name service
     # crudini --set /etc/nova/nova.conf keystone_authtoken username nova
     # crudini --set /etc/nova/nova.conf keystone_authtoken password Password123
-    # crudini --set /etc/nova/nova.conf vnc enabled true 
+    # crudini --set /etc/nova/nova.conf vnc enabled true
     # crudini --set /etc/nova/nova.conf vnc server_listen \$my_ip
     # crudini --set /etc/nova/nova.conf vnc server_proxyclient_address \$my_ip
-    # crudini --set /etc/nova/nova.conf glance api_servers http://10.10.230.10:9292
+    # crudini --set /etc/nova/nova.conf glance api_servers http://controller:9292
     # crudini --set /etc/nova/nova.conf oslo_concurrency lock_path /var/lib/nova/tmp
-    # crudini --set /etc/nova/nova.conf placement region_name RegionTest
-    # crudini --set /etc/nova/nova.conf placement project_domain_name Default
+    # crudini --set /etc/nova/nova.conf placement region_name RegionOne
+    # crudini --set /etc/nova/nova.conf placement project_domain_name default
     # crudini --set /etc/nova/nova.conf placement project_name service
     # crudini --set /etc/nova/nova.conf placement auth_type password
-    # crudini --set /etc/nova/nova.conf placement user_domain_name Default
-    # crudini --set /etc/nova/nova.conf placement auth_url http://10.10.230.10:5000/v3
+    # crudini --set /etc/nova/nova.conf placement user_domain_name default
+    # crudini --set /etc/nova/nova.conf placement auth_url http://controller:5000/v3
     # crudini --set /etc/nova/nova.conf placement username placement
     # crudini --set /etc/nova/nova.conf placement password Password123
     # crudini --set /etc/nova/nova.conf scheduler discover_hosts_in_cells_interval 300
-    # crudini --set /etc/nova/nova.conf neutron url http://10.10.230.10:9696
-    # crudini --set /etc/nova/nova.conf neutron auth_url http://10.10.230.10:5000
+    # crudini --set /etc/nova/nova.conf neutron url http://controller:9696
+    # crudini --set /etc/nova/nova.conf neutron auth_url http://controller:5000
+    # crudini --set /etc/nova/nova.conf neutron region_name RegionOne
     # crudini --set /etc/nova/nova.conf neutron auth_type password
-    # crudini --set /etc/nova/nova.conf neutron project_domain_name Default
-    # crudini --set /etc/nova/nova.conf neutron user_domain_name Default
+    # crudini --set /etc/nova/nova.conf neutron project_domain_name default
+    # crudini --set /etc/nova/nova.conf neutron user_domain_name default
     # crudini --set /etc/nova/nova.conf neutron project_name service
     # crudini --set /etc/nova/nova.conf neutron username neutron
     # crudini --set /etc/nova/nova.conf neutron password Password123
@@ -635,7 +635,7 @@
     # openstack compute service list
     ```
     <img src=https://i.imgur.com/jhhwhru.png>
-    
+
 #### **2.10.2) Cài đặt `Nova` trên các node `compute`**
 - **B1 :** Cài đặt các gói của `nova` :
     ```
@@ -648,36 +648,37 @@
 - **B3 :** Cấu hình `nova` (trên `compute1`. Làm tương tự với `compute2` ):
     ```
     # crudini --set /etc/nova/nova.conf DEFAULT enabled_apis osapi_compute,metadata
-    # crudini --set /etc/nova/nova.conf DEFAULT transport_url rabbit://openstack:Password123@10.10.230.10
+    # crudini --set /etc/nova/nova.conf DEFAULT transport_url rabbit://openstack:Password123@controller
     # crudini --set /etc/nova/nova.conf DEFAULT my_ip 10.10.230.11
     # crudini --set /etc/nova/nova.conf DEFAULT use_neutron true
     # crudini --set /etc/nova/nova.conf DEFAULT firewall_driver nova.virt.firewall.NoopFirewallDriver
-    # crudini --set /etc/nova/nova.conf api_database connection mysql+pymysql://nova:Password123@10.10.230.10/nova_api
-    # crudini --set /etc/nova/nova.conf database connection mysql+pymysql://nova:Password123@10.10.230.10/nova
+    # crudini --set /etc/nova/nova.conf api_database connection mysql+pymysql://nova:Password123@controller/nova_api
+    # crudini --set /etc/nova/nova.conf database connection mysql+pymysql://nova:Password123@controller/nova
     # crudini --set /etc/nova/nova.conf api auth_strategy keystone
-    # crudini --set /etc/nova/nova.conf keystone_authtoken www_authenticate_uri http://10.10.230.10:5000/
-    # crudini --set /etc/nova/nova.conf keystone_authtoken auth_url http://10.10.230.10:5000/
-    # crudini --set /etc/nova/nova.conf keystone_authtoken memcached_servers 10.10.230.10:11211
+    # crudini --set /etc/nova/nova.conf keystone_authtoken www_authenticate_uri http://controller:5000/
+    # crudini --set /etc/nova/nova.conf keystone_authtoken auth_url http://controller:5000/
+    # crudini --set /etc/nova/nova.conf keystone_authtoken memcached_servers controller:11211
     # crudini --set /etc/nova/nova.conf keystone_authtoken auth_type password
-    # crudini --set /etc/nova/nova.conf keystone_authtoken project_domain_name Default
-    # crudini --set /etc/nova/nova.conf keystone_authtoken user_domain_name Default
+    # crudini --set /etc/nova/nova.conf keystone_authtoken project_domain_name default
+    # crudini --set /etc/nova/nova.conf keystone_authtoken user_domain_name default
     # crudini --set /etc/nova/nova.conf keystone_authtoken project_name service
     # crudini --set /etc/nova/nova.conf keystone_authtoken username nova
     # crudini --set /etc/nova/nova.conf keystone_authtoken password Password123
     # crudini --set /etc/nova/nova.conf vnc enabled true
     # crudini --set /etc/nova/nova.conf vnc server_listen 0.0.0.0
     # crudini --set /etc/nova/nova.conf vnc server_proxyclient_address \$my_ip
-    # crudini --set /etc/nova/nova.conf vnc novncproxy_base_url http://10.10.230.10:6080/vnc_auto.html
-    # crudini --set /etc/nova/nova.conf glance api_servers http://10.10.230.10:9292
+    # crudini --set /etc/nova/nova.conf vnc novncproxy_base_url http://controller:6080/vnc_auto.html
+    # crudini --set /etc/nova/nova.conf glance api_servers http://controller:9292
     # crudini --set /etc/nova/nova.conf oslo_concurrency lock_path /var/lib/nova/tmp
-    # crudini --set /etc/nova/nova.conf placement region_name RegionTest
-    # crudini --set /etc/nova/nova.conf placement project_domain_name Default
+    # crudini --set /etc/nova/nova.conf placement region_name RegionOne
+    # crudini --set /etc/nova/nova.conf placement project_domain_name default
     # crudini --set /etc/nova/nova.conf placement project_name service
     # crudini --set /etc/nova/nova.conf placement auth_type password
-    # crudini --set /etc/nova/nova.conf placement user_domain_name Default
-    # crudini --set /etc/nova/nova.conf placement auth_url http://10.10.230.10:5000/v3
+    # crudini --set /etc/nova/nova.conf placement user_domain_name default
+    # crudini --set /etc/nova/nova.conf placement auth_url http://controller:5000/v3
     # crudini --set /etc/nova/nova.conf placement username placement
     # crudini --set /etc/nova/nova.conf placement password Password123
+
     # crudini --set /etc/nova/nova.conf libvirt virt_type qemu
     ```
 - **B4 :** Khởi động **`Nova`** :
@@ -704,7 +705,6 @@
     > CREATE DATABASE neutron;
     > GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'localhost' IDENTIFIED BY 'Password123';
     > GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'%' IDENTIFIED BY 'Password123';
-    > GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'10.10.230.10' IDENTIFIED BY 'Password123';
     > FLUSH PRIVILEGES;
     > exit
     ```
@@ -713,10 +713,10 @@
     # source /root/admin-openrc
     # openstack user create neutron --domain default --password Password123
     # openstack role add --project service --user neutron admin
-    # openstack service create --name neutron --description "OpenStack Compute" network
-    # openstack endpoint create --region RegionTest network public http://10.10.230.10:9696
-    # openstack endpoint create --region RegionTest network internal http://10.10.230.10:9696
-    # openstack endpoint create --region RegionTest network admin http://10.10.230.10:9696
+    # openstack service create --name neutron --description "OpenStack Networking" network
+    # openstack endpoint create --region RegionOne network public http://controller:9696
+    # openstack endpoint create --region RegionOne network internal http://controller:9696
+    # openstack endpoint create --region RegionOne network admin http://controller:9696
     ```
 - **B3 :** Cài đặt **`Neutron`** :
     ```
@@ -733,25 +733,25 @@
     ```
     # crudini --set /etc/neutron/neutron.conf DEFAULT core_plugin ml2
     # crudini --set /etc/neutron/neutron.conf DEFAULT service_plugins
-    # crudini --set /etc/neutron/neutron.conf DEFAULT transport_url rabbit://openstack:Password123@10.10.230.10
+    # crudini --set /etc/neutron/neutron.conf DEFAULT transport_url rabbit://openstack:Password123@controller
     # crudini --set /etc/neutron/neutron.conf DEFAULT auth_strategy keystone
     # crudini --set /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_status_changes True
-    # crudini --set /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_data_changes True 
-    # crudini --set /etc/neutron/neutron.conf database connection mysql+pymysql://neutron:Password123@10.10.230.10/neutron
-    # crudini --set /etc/neutron/neutron.conf keystone_authtoken www_authenticate_uri http://10.10.230.10:5000
-    # crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_url http://10.10.230.10:5000
-    # crudini --set /etc/neutron/neutron.conf keystone_authtoken memcached_servers 10.10.230.10:11211
+    # crudini --set /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_data_changes True
+    # crudini --set /etc/neutron/neutron.conf database connection mysql+pymysql://neutron:Password123@controller/neutron
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken www_authenticate_uri http://controller:5000
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_url http://controller:5000
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken memcached_servers controller:11211
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_type password
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken project_domain_name default
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken user_domain_name default
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken project_name service
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken username neutron
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken password Password123
-    # crudini --set /etc/neutron/neutron.conf nova auth_url http://10.10.230.10:5000
+    # crudini --set /etc/neutron/neutron.conf nova auth_url http://controller:5000
     # crudini --set /etc/neutron/neutron.conf nova auth_type password
-    # crudini --set /etc/neutron/neutron.conf nova project_domain_name Default
-    # crudini --set /etc/neutron/neutron.conf nova user_domain_name Default
-    # crudini --set /etc/neutron/neutron.conf nova region_name RegionTest
+    # crudini --set /etc/neutron/neutron.conf nova project_domain_name default
+    # crudini --set /etc/neutron/neutron.conf nova user_domain_name default
+    # crudini --set /etc/neutron/neutron.conf nova region_name RegionOne
     # crudini --set /etc/neutron/neutron.conf nova project_name service
     # crudini --set /etc/neutron/neutron.conf nova username nova
     # crudini --set /etc/neutron/neutron.conf nova password Password123
@@ -762,9 +762,9 @@
     # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2 type_drivers flat,vlan,vxlan
     # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2 tenant_network_types vxlan
     # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2 mechanism_drivers linuxbridge
-    # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2 extension_drivers port_security          
+    # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2 extension_drivers port_security
     # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2_type_flat flat_networks provider
-    # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2_type_vxlan vni_ranges 1:1000        
+    # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2_type_vxlan vni_ranges 1:1000
     # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini securitygroup enable_ipset True
     ```
 - **B7 :** Sửa file cấu hình `/etc/neutron/plugins/ml2/linuxbridge_agent.ini` :
@@ -805,13 +805,14 @@
 #### **2.11.2) Cài đặt `Neutron` trên các node `compute`**
 - **B1 :** Khai báo bổ sung cho **`Nova`** :
     ```
-    # crudini --set /etc/nova/nova.conf neutron url http://10.10.230.10:9696
-    # crudini --set /etc/nova/nova.conf neutron auth_url http://10.10.230.10:5000
+    # crudini --set /etc/nova/nova.conf neutron url http://controller:9696
+    # crudini --set /etc/nova/nova.conf neutron auth_url http://controller:5000
     # crudini --set /etc/nova/nova.conf neutron auth_type password
-    # crudini --set /etc/nova/nova.conf neutron project_domain_name Default
-    # crudini --set /etc/nova/nova.conf neutron user_domain_name Default
+    # crudini --set /etc/nova/nova.conf neutron project_domain_name default
+    # crudini --set /etc/nova/nova.conf neutron user_domain_name default
     # crudini --set /etc/nova/nova.conf neutron project_name service
     # crudini --set /etc/nova/nova.conf neutron username neutron
+    # crudini --set /etc/nova/nova.conf neutron region_name RegionOne
     # crudini --set /etc/nova/nova.conf neutron password Password123
     ```
 - **B2 :** Cài đặt **`Neutron`** :
@@ -830,15 +831,15 @@
     ```
     # crudini --set /etc/neutron/neutron.conf DEFAULT auth_strategy keystone
     # crudini --set /etc/neutron/neutron.conf DEFAULT core_plugin ml2
-    # crudini --set /etc/neutron/neutron.conf DEFAULT transport_url rabbit://openstack:Password123@10.10.230.10
+    # crudini --set /etc/neutron/neutron.conf DEFAULT transport_url rabbit://openstack:Password123@controller
     # crudini --set /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_status_changes true
     # crudini --set /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_data_changes true
-    # crudini --set /etc/neutron/neutron.conf keystone_authtoken www_authenticate_uri http://10.10.230.10:5000
-    # crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_url http://10.10.230.10:5000
-    # crudini --set /etc/neutron/neutron.conf keystone_authtoken memcached_servers 10.10.230.10:11211
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken www_authenticate_uri http://controller:5000
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_url http://controller:5000
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken memcached_servers controller:11211
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_type password
-    # crudini --set /etc/neutron/neutron.conf keystone_authtoken project_domain_name Default
-    # crudini --set /etc/neutron/neutron.conf keystone_authtoken user_domain_name Default
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken project_domain_name default
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken user_domain_name default
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken project_name service
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken username neutron
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken password Password123
@@ -916,7 +917,7 @@
             'enable_ha_router': False,
             'enable_quotas': False,
             'enable_router': False,
-            ...   
+            ...
         }
         ```
         ```py
