@@ -90,7 +90,7 @@
     # chronyc sources
     ```
     <img src=https://i.imgur.com/8aiOBtf.png>
-    
+
     > Dấu "`*`" thể hiện việc đồng bộ thành công
 #### **2.2.2) Cài đặt NTP trên các node `compute`**
 - **B1 :** Cài đặt `chrony` sử dụng làm NTP :
@@ -131,6 +131,7 @@
     ```
     <img src=https://i.imgur.com/jZkGLG3.png>
     <img src=https://i.imgur.com/06JIeIR.png>
+
     > Dấu "`*`" thể hiện việc đồng bộ thành công
 ### **2.3) Cài đặt và cấu hình `memcached` trên node `controller`**
 - Cơ chế xác thực cho các dịch vụ sử dụng `memcached` để cache các token
@@ -172,7 +173,6 @@
         ```
         [mysqld]
         bind-address = 10.10.230.10
-
         default-storage-engine = innodb
         innodb_file_per_table = on
         max_connections = 4096
