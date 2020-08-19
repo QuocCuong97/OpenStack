@@ -110,6 +110,13 @@
 - Phương thức mã hóa và sử dụng chữ ký số :
     - **Fernet** sử dụng `128bit AES-CBC` encryption key + `128bit SHA256 HMAC` signing key
     - **JWS** sử dụng `ES256` JWA signing với `ECDSA` sử dụng `P-256 curve` và `SHA256 HMAC`
+- Tốc độ mã hóa và giải mã : Fernet sẽ nhanh hơn
+- Kiểu mã hóa :
+    - Fernet : Symmetric
+    - JWS : Asymmetric
+- Hỗ trợ :
+    - Fernet đang là dạng token mặc định của Keystone
+    - JWS mới được đưa vào từ bản Stein, chưa hỗ trợ nhiều, cấu hình khó hơn
 ## **4) Cấu hình JWS**
 - **B1 :** Cài đặt **Keystone** (bỏ qua các cấu hình liên quan đến fernet token)
 - **B2 :** Chỉnh sửa file cấu hình `keystone.conf`
@@ -164,3 +171,12 @@
         pub3.pem            pub3.pem            pub3.pem
         pri1.pem            pri2.pem            pri3.pem
         ```
+## **6) So sánh các loại token**
+
+|  | UUID | PKI | PKIz | Fernet | JWS |
+|------------|------|-----|------|--------|-----|
+| Kích cỡ | 32 Byte | cỡ KBs | cỡ KBs | Khoảng 255 Byte | |
+| Lưu trong database | có | có | có | không | không |
+| Thông tin mang theo | không có | user, catalog,.. | user, catalog,... | user,... | user,... |
+| Kiểu mã hóa | không | asymmetric | asymmetric | symmetric | asymmetric |
+| Nén | Không | Không | Có | Không | Không |
