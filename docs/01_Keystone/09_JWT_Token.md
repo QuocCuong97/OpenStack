@@ -120,8 +120,9 @@
     ```
 - **B3 :** Khởi tạo key pair :
     ```
-    # keystone-manage create_jws_keypair
+    # keystone-manage create_jws_keypair --keystone-user keystone --keystone-group keystone
     ```
+    > Lệnh chạy sẽ sinh ra 2 file `public.pem` và `private.pem`
 ## **5) Quá trình rotation và distribution**
 - Mỗi API server cần một cặp `public-private` key pair riêng
 - `keystone-manage` sẽ không xử lý phần rotation
