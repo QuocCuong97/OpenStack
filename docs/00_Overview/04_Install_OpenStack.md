@@ -723,6 +723,7 @@
     ```
     # cp /etc/neutron/neutron.conf /etc/neutron/neutron.conf.bak
     # cp /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugins/ml2/ml2_conf.ini.bak
+    # cp /etc/neutron/plugins/ml2/linuxbridge_agent.ini /etc/neutron/plugins/ml2/linuxbridge_agent.ini.bak 
     # cp /etc/neutron/dhcp_agent.ini /etc/neutron/dhcp_agent.ini.bak
     # cp /etc/neutron/metadata_agent.ini /etc/neutron/metadata_agent.ini.bak
     ```
@@ -809,7 +810,6 @@
     # crudini --set /etc/nova/nova.conf neutron user_domain_name Default
     # crudini --set /etc/nova/nova.conf neutron project_name service
     # crudini --set /etc/nova/nova.conf neutron username neutron
-    # crudini --set /etc/nova/nova.conf neutron region_name RegionOne
     # crudini --set /etc/nova/nova.conf neutron password Password123
     ```
 - **B2 :** Cài đặt **`Neutron`** :
