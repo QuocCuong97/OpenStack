@@ -17,16 +17,16 @@
         - `string` : có thể có hoặc không đặt trong cặp dấu `" "` hoặc `' '`
 - **Substitution**
     - File config hỗ trợ ***variable substitution***. Sau khi thiết lập, tùy chọn cấu hình đó có thể được dùng lại trong các giá tri tùy chọn khác bằng cách thêm dấu `$`. **VD :**
-        ```
+        ```ini
         rabbit_hosts = $rabbit_host:$rabbit_port
         ```
     - Khi gán giá trị, để tránh bị hiểu nhầm là **substitution**, không dùng dấu `$` ở đầu giá trị mà dùng `$$`. **VD :**
-        ```
+        ```ini
         ldap_dns_password = $$xkj342
         ```
 - **Whitespace**
     - Để sử dụng khoảng trắng trong phần value, đặt value trong cặp dấu `' '` :
-        ```
+        ```ini
         ldap_dns_passsword='a password with spaces'
         ```
 ## **2) Các tùy chọn cấu hình API**

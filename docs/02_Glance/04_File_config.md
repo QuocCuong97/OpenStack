@@ -21,7 +21,7 @@
 
 - Các Section trong file :
     - `[database]` : cấu hình kết nối tới database
-        ```
+        ```ini
         [database]
         connection = mysql+pymysql://glance:Password123@10.10.230.10/glance
         ```
@@ -30,7 +30,7 @@
             - `Password123` : mật khẩu của user `glance`
             - `10.10.230.10` : IP node controller
     - `[keystone_authtoken]` và `[paste_deploy]` : cấu hình kết nối tới identity service tại section với các thông tin cần thiết
-        ```
+        ```ini
         [keystone_authtoken]
         www_authenticate_uri = http://10.10.230.10:5000
         auth_url = http://10.10.230.10:5000
@@ -46,19 +46,19 @@
         flavor = keystone
         ```
     - `[glance_store]` : cấu hình kiểu lưu trữ image
-        ```
+        ```ini
         [glance_store]
         stores = file,http
         default_store = file
         filesystem_store_datadir = /var/lib/glance/images/
         ```
         - Ở đây có hai kiểu lưu trữ được sử dụng và mặc định sẽ sử dụng file system. Có thể cấu hình để lưu trữ trên nhiều nơi khác nhau theo cú pháp như sau:
-            ```
+            ```ini
             filesystem_store_datadirs = PATH:PRIORITY
             ```
             - Trong đó: `PATH` là đường dẫn tới thư mục chứa image, `PRIORITY` là mức độ ưu tiên.
             - **VD :**
-                ```
+                ```ini
                 filesystem_store_datadirs = /var/glance/store
                 filesystem_store_datadirs = /var/glance/store1:100
                 filesystem_store_datadirs = /var/glance/store2:200

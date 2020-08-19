@@ -1,8 +1,8 @@
-# JWT Token trong Keystone
+# JWS Token trong Keystone
 ## **1) Giới thiệu**
 - **JSON Web Signature (JWS)** token được giới thiệu lần đầu trong bản `Stein` .
-- **JWT** được định nghĩa trong RFC 7519
-- **JWT** hỗ trợ mã hóa bất đối xứng (***asymmetric***), signed và mã hóa payload
+- **JWS** được định nghĩa trong RFC 7519
+- **JWS** hỗ trợ mã hóa bất đối xứng (***asymmetric***), signed và mã hóa payload
 - Lý do không sử dụng UUID Token: token cố định
     ```
     779810523fb24886b67a23f4f823b685
@@ -53,7 +53,7 @@
     ysNiZfWSqNPDabMl54Q7ykPw2Gzxx1G8gzcNvGvRvTCjTLAqtQ1dZ7xM-zxbbam8Vha3SgGNhxL8-bESItc
     8SiF3PhHSXD4Mfztp16N2Em_F8CYqviBlaj917zPUwf2h-1nsiVSIpWGKeu-Gdtc6rtfD2eRWEbn5VNhNUwivHb8i14U1yo6RNH7qf0Y4ValpVTG9nR4NMHv39zrQjM94_ty-xc2_Erg
     ```
-- Lý do không sử dụng Fernet Token : chúng sử dụng mã hóa đối xứng và chữ ký số
+- Lý do không sử dụng Fernet Token : chúng sử dụng mã hóa đối xứng (***symmetric key***) :
     ```
     gAAAAABU7roWGiCuOvgFcckec-
     0ytpGnMZDBLG9hA7Hr9qfvdZDHjsak39YN98HXxoYLIqVm19Egku5YR3wyI7heVrOmPNEtmrfIM1rtahudEdEAPM4HCiMrBmiA1Lw6SU8jc2rPLC7FK7nBCia_BGhG17NVHuQu0S7waA306jyKNhHwUnp
@@ -67,7 +67,7 @@
     QW9FRURqdyJdLCJpYXQiOjE1NTQxMjk3MzEsIm9wZW5zdGFja19tZXRob2RzIjpbInBhc3N3b3JkIl19.
     tHcVIaW43RwREduckh2itJ_RrZ5DctFElox1SsORO3Q7DsDLlWDQbuhCRuRd6_QgB0Brm1x_q7aB2lZcHy_fw=
     ```
-## **2) Cấu trúc một JWT Token**
+## **2) Cấu trúc một JWS Token**
 - Công thức mã hóa :
     ```
     ECDSASHA256(baseUrlEncode(header) + "." + baseUrlEncode(payload), publicKey, privateKey)
@@ -123,6 +123,12 @@
     # keystone-manage create_jws_keypair --keystone-user keystone --keystone-group keystone
     ```
     > Lệnh chạy sẽ sinh ra 2 file `public.pem` và `private.pem`
+- **B4 :** Sử dụng lệnh sinh token để kiểm tra :
+    ```
+    # openstack token issue
+    ```
+    <img src=https://i.imgur.com/xDvWy2q.png>
+    
 ## **5) Quá trình rotation và distribution**
 - Mỗi API server cần một cặp `public-private` key pair riêng
 - `keystone-manage` sẽ không xử lý phần rotation
