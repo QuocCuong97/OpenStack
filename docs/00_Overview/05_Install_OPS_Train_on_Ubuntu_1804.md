@@ -1,4 +1,4 @@
-# Cài đặt OpenStack Train trên CentOS 7
+# Cài đặt OpenStack Train trên Ubuntu 18.04
 ## **Mô hình**
 
 <img src=https://i.imgur.com/XpxU968.png>
@@ -11,8 +11,7 @@
 ### **1) Cài đặt ban đầu trên cả 3 node**
 - **B1 :** Update các gói phần mềm và các package cơ bản:
     ```
-    # yum install epel-release wget -y
-    # yum update -y
+    # apt update -y
     ```
 - **B2 :** Thiết lập hostname :
     ```
@@ -29,30 +28,24 @@
 - **B4 :** Thiết lập phân hoạch IP cho node `controller`
 - **B5 :** Disable firewalld và SELinux :
     ```
-    # sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
-    # sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
-    # systemctl disable firewalld
-    # systemctl stop firewalld
-    # systemctl stop NetworkManager
-    # systemctl disable NetworkManager
-    # systemctl enable network
-    # systemctl start network
-    # reboot
+    # systemctl disable ufw
+    # systemctl stop ufw
     ```
 ### **2) Cài đặt OpenStack**
 #### **2.1) Cài đặt package OpenStack trên cả 3 node**
 - Thực hiện các lệnh để cài đặt **OpenStack** :
     ```
-    # yum -y install centos-release-openstack-train
-    # yum -y upgrade -y
-    # yum -y install crudini
-    # yum -y install python-openstackclient openstack-selinux
+    # apt-get install -y software-properties-common
+    # add-apt-repository cloud-archive:train
+    # apt -y upgrade -y
+    # apt -y install crudini
+    # apt -y install python-openstackclient python3-openstackclient
     ```
 #### **2.2) Cài đặt NTP**
 ##### **2.2.1) Cài đặt NTP trên node `controller`**
 - **B1 :** Cài đặt `chrony` sử dụng làm NTP :
     ```
-    # yum -y install chrony
+    # apt -y install chrony
     ```
 - **B2 :** Sao lưu file cấu hình của `chrony` :
     ```
@@ -76,12 +69,11 @@
     ```
 - **B6 :** Khởi động lại chrony sau khi sửa file cấu hình :
     ```
-    # systemctl start chronyd
-    # systemctl enable chronyd
+    # service chrony restart
     ```
 - **B7 :** Kiểm tra lại trạng thái của `chrony` :
     ```
-    # systemctl status chronyd
+    # service chrony status
     ```
     <img src=https://i.imgur.com/Cr3QPzj.png>
 
@@ -95,7 +87,7 @@
 #### **2.2.2) Cài đặt NTP trên các node `compute`**
 - **B1 :** Cài đặt `chrony` sử dụng làm NTP :
     ```
-    # yum -y install chrony
+    # apt -y install chrony
     ```
 - **B2 :** Sao lưu file cấu hình của `chrony` :
     ```
@@ -115,12 +107,11 @@
     > 2 node `compute` sẽ đồng bộ thời gian về từ `controller`
 - **B6 :** Khởi động lại chrony sau khi sửa file cấu hình :
     ```
-    # systemctl start chronyd
-    # systemctl enable chronyd
+    # service chrony restart
     ```
 - **B7 :** Kiểm tra lại trạng thái của `chrony` :
     ```
-    # systemctl status chronyd
+    # service chrony status
     ```
     <img src=https://i.imgur.com/fjRIxSR.png>
     <img src=https://i.imgur.com/0L1YU6g.png>
@@ -138,7 +129,7 @@
 - `Memcached` thường chạy trên node `controller`
 - **B1 :** Cài đặt `memcached` :
     ```
-    # yum -y install memcached python-memcached
+    # apt -y install memcached python-memcache
     ```
 - **B2 :** Backup file cấu hình của `memcached` :
     ```
@@ -150,12 +141,11 @@
     ```
 - **B4 :** Khởi động lại `memcached` :
     ```
-    # systemctl enable memcached
-    # systemctl start memcached
+    # service memcached restart
     ```
 - **B5 :** Kiểm tra trạng thái dịch vụ :
     ```
-    # systemctl status memcached
+    # service memcached status
     ```
     <img src=https://i.imgur.com/PenIOOl.png>
 
@@ -163,7 +153,7 @@
 - Hầu hết các dịch vụ của **OpenStack** sử dụng cơ sở dữ liệu **SQL** để lưu thông tin. DB thường sẽ chạy trên node `controller`. Các dịch vụ **OpenStack** cũng hỗ trợ các cơ sở dữ liệu SQL khác bao gồm **PostgreSQL**.
 - **B1 :** Cài đặt **`MariaDB`** :
     ```
-    # yum -y install mariadb mariadb-server python2-PyMySQL
+    # apt -y install mariadb-server python-pymysql
     ```
 - **B2 :** Tạo và chỉnh sửa file cấu hình của **OpenStack** :
     ```
@@ -182,12 +172,11 @@
         ```
 - **B3 :** Khởi động **`MariaDB`** :
     ```
-    # systemctl start mariadb
-    # systemctl enable mariadb
+    # service mysql restart
     ```
 - **B4 :** Kiểm tra trạng thái dịch vụ :
     ```
-    # systemctl status mariadb
+    # service mysql restart
     ```
     <img src=https://i.imgur.com/h041Agl.png>
 
@@ -210,12 +199,11 @@
 - Tuy nhiên, hầu hết các bản phân phối gói **OpenStack** đều hỗ trợ dịch vụ ***message queue*** cụ thể. Ta sẽ sử dụng **`RabbitMQ`** bởi vì hầu hết các phiên bản đều hỗ trợ nó.
 - **B1 :** Cài đặt `rabbitmq` :
     ```
-    # yum -y install rabbitmq-server
+    # apt -y install rabbitmq-server
     ```
 - **B2 :** Khởi động dịch vụ `rabbitmq` :
     ```
-    # systemctl enable rabbitmq-server
-    # systemctl start rabbitmq-server
+    # service rabbitmq-server start
     ```
 - **B3 :** Khai báo plugin cho `rabbitmq` :
     ```
@@ -253,7 +241,7 @@
 - **`ETCD`** là một ứng dụng lưu trữ dữ liệu phân tán theo theo kiểu ***key-value***, nó được các services trong **OpenStack** sử dụng lưu trữ cấu hình, theo dõi các trạng thái dịch vụ và các tình huống khác.
 - **B1 :** Cài đặt `etcd` :
     ```
-    # yum -y install etcd
+    # apt -y install etcd
     ```
 - **B2 :** Sao lưu file cấu hình của `etcd` :
     ```
@@ -297,7 +285,7 @@
     ```
 - **B2 :** Cài đặt **`Keystone`** :
     ```
-    # yum -y install openstack-keystone httpd mod_wsgi
+    # apt install -y keystone
     ```
 - **B3 :** Sao lưu file cấu hình của **`Keystone`** :
     ```
@@ -330,24 +318,20 @@
     --bootstrap-public-url http://controller:5000/v3/ \
     --bootstrap-region-id RegionOne
     ```
-- **B9 :** **`Keystone`** sẽ sử dụng httpd để chạy service, các request vào **`keystone`** sẽ thông qua `httpd`. Do vậy cần cấu hình `httpd` để **`keystone`** sử dụng. Sửa dòng `95` trong file cấu hình `/etc/httpd/conf/httpd.conf` của dịch vụ `httpd` :
+- **B9 :** **`Keystone`** sẽ sử dụng httpd để chạy service, các request vào **`keystone`** sẽ thông qua `apache2`. Do vậy cần cấu hình `apache2` để **`keystone`** sử dụng. Sửa dòng `95` trong file cấu hình `/etc/apache2/apache2.conf` của dịch vụ `apache2` :
     ```
-    # vi /etc/httpd/conf/httpd.conf
+    # vi /etc/apache2/apache2.conf
     :set nu
     ```
     <img src=https://i.imgur.com/y0dKTft.png>
-- **B10 :** Tạo liên kết (soft link) cho file `/usr/share/keystone/wsgi-keystone.conf` :
+
+- **B11 :** Khởi động dịch vụ `apache2` :
     ```
-    # ln -s /usr/share/keystone/wsgi-keystone.conf /etc/httpd/conf.d/
-    ```
-- **B11 :** Khởi động dịch vụ `httpd` :
-    ```
-    # systemctl enable httpd
-    # systemctl start httpd
+    # service apache2 restart
     ```
 - **B12 :** Kiểm tra lại trạng thái dịch vụ :
     ```
-    # systemctl status httpd
+    # systemctl status apache2
     ```
     <img src="https://i.imgur.com/sMjbj7L.png">
 
@@ -413,7 +397,7 @@
     ```
 - **B4 :** Cài đặt `glance` và các package cần thiết :
     ```
-    # yum install -y openstack-glance MySQL-python python-devel
+    # apt install -y glance
     ```
 - **B5 :** Sao lưu file cấu hình **`Glance`** :
     ```
@@ -442,8 +426,7 @@
     ```
 - **B8 :** Khởi động dịch vụ **`glance`** :
     ```
-    # systemctl enable openstack-glance-api
-    # systemctl start openstack-glance-api
+    # systemctl glance-api restart
     ```
 - **B9 :** Tải image và import vào **`glance`** :
     ```
@@ -485,7 +468,7 @@
     ```
 - **B4 :** Cài đặt `placement` :
     ```
-    # yum install -y openstack-placement-api
+    # apt install -y placement-api
     ```
 - **B5 :** Sao lưu file cấu hình của `placement` :
     ```
@@ -504,29 +487,13 @@
     # crudini --set /etc/placement/placement.conf keystone_authtoken username placement
     # crudini --set /etc/placement/placement.conf keystone_authtoken password Password123
     ```
-- **B7 :** Khai báo phân quyền cho `placement` :
-    ```
-    # vi /etc/httpd/conf.d/00-nova-placement-api.conf
-    ```
-    - Thêm vào đoạn sau :
-        ```
-        <Directory /usr/bin>
-          <IfVersion >= 2.4>
-            Require all granted
-          </IfVersion>
-          <IfVersion < 2.4>
-            Order allow,deny
-            Allow from all
-          </IfVersion>
-        </Directory>
-        ```
 - **B8 :** Tạo các bảng, đồng bộ dữ liệu cho `placement` :
     ```
     # su -s /bin/sh -c "placement-manage db sync" placement
     ```
 - **B9 :** Khởi động lại `httpd` :
     ```
-    # systemctl restart httpd
+    # service apache2 restart
     ```
 ### **2.10) Cài đặt `Nova`**
 #### **2.10.1) Cài đặt `Nova` trên node `controller`**
@@ -560,7 +527,7 @@
     ```
 - **B4 :** Cài đặt `nova` và các package đi kèm :
     ```
-    # yum install -y openstack-nova-api openstack-nova-conductor openstack-nova-novncproxy openstack-nova-scheduler
+    # apt install -y nova-api nova-conductor nova-novncproxy nova-scheduler
     ```
 - **B5 :** Sao lưu file cấu hình của `nova` :
     ```
@@ -626,8 +593,7 @@
     <img src=https://i.imgur.com/LvkPXdv.png>
 - **B9 :** Kích hoạt và khởi động các dịch vụ của **`Nova`** :
     ```
-    # systemctl enable openstack-nova-api openstack-nova-scheduler openstack-nova-conductor openstack-nova-novncproxy
-    # systemctl start openstack-nova-api openstack-nova-scheduler openstack-nova-conductor openstack-nova-novncproxy
+    # service restart nova-api nova-scheduler nova-conductor nova-novncproxy
     ```
 - **B10 :** Kiểm tra lại xem dịch vụ của `nova` đã hoạt động chưa :
     ```
@@ -638,7 +604,7 @@
 #### **2.10.2) Cài đặt `Nova` trên các node `compute`**
 - **B1 :** Cài đặt các gói của `nova` :
     ```
-    # yum install -y openstack-nova-compute openstack-utils
+    # apt install -y nova-compute
     ```
 - **B2 :** Sao lưu file cấu hình của **`Nova`** :
     ```
@@ -677,11 +643,11 @@
     # crudini --set /etc/nova/nova.conf placement auth_url http://controller:5000/v3
     # crudini --set /etc/nova/nova.conf placement username placement
     # crudini --set /etc/nova/nova.conf placement password Password123
+    # crudini --set /etc/nova/nova-compute.conf libvirt virt_type qemu
     ```
 - **B4 :** Khởi động **`Nova`** :
     ```
-    # systemctl enable libvirtd openstack-nova-compute
-    # systemctl start libvirtd openstack-nova-compute
+    # service start nova-compute
     ```
 #### **2.10.3) Thêm các node `compute` vào hệ thống (trên node `controller`)**
 - **B1 :** Kiểm tra các node `compute` đã up hay chưa :
@@ -717,7 +683,7 @@
     ```
 - **B3 :** Cài đặt **`Neutron`** :
     ```
-    # yum install -y openstack-neutron openstack-neutron-ml2 openstack-neutron-linuxbridge ebtables
+    # apt install -y neutron-server neutron-plugin-ml2 neutron-linuxbridge-agent neutron-dhcp-agent neutron-metadata-agent
     ```
 - **B4 :** Sao lưu các file cấu hình của **`Neutron`** :
     ```
@@ -780,10 +746,6 @@
     # modprobe br_netfilter
     # /sbin/sysctl -p
     ```
-- **B9 :** Tạo liên kết file :
-    ```
-    # ln -s /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugin.ini
-    ```
 - **B10 :** Thiết lập database :
     ```
     # su -s /bin/sh -c "neutron-db-manage --config-file /etc/neutron/neutron.conf \
@@ -791,8 +753,8 @@
     ```
 - **B11 :** Khởi động dịch vụ **`neutron`** :
     ```
-    # systemctl enable neutron-server neutron-linuxbridge-agent neutron-dhcp-agent neutron-metadata-agent
-    # systemctl start neutron-server neutron-linuxbridge-agent neutron-dhcp-agent neutron-metadata-agent
+    # service start neutron-server neutron-linuxbridge-agent neutron-dhcp-agent neutron-metadata-agent
+    # service nova-api restart
     ```
 - **B12 :** Kiểm tra lại trạng thái dịch vụ :
     ```
@@ -814,7 +776,7 @@
     ```
 - **B2 :** Cài đặt **`Neutron`** :
     ```
-    # yum install -y openstack-neutron openstack-neutron-ml2 openstack-neutron-linuxbridge ebtables ipset
+    # apt install -y neutron-linuxbridge-agent
     ```
 - **B3 :** Sao lưu các file cấu hình của **`Neutron`** :
     ```
@@ -871,17 +833,16 @@
     ```
 - **B9 :** Khởi động **`Neutron`** :
     ```
-    # systemctl enable neutron-linuxbridge-agent neutron-metadata-agent neutron-dhcp-agent
-    # systemctl start neutron-linuxbridge-agent neutron-metadata-agent neutron-dhcp-agent
+    # service neutron-linuxbridge-agent restart
     ```
 - **B10 :** Khởi động lại dịch vụ `openstack-nova-compute` :
     ```
-    # systemctl restart openstack-nova-compute
+    # service nova-compute restart
     ```
 ### **2.12) Cài đặt và cấu hình `Horizon` trên node `controller`**
 - **B1 :** Cài đặt `openstack-dashboard` :
     ```
-    # yum install -y openstack-dashboard
+    # apt install -y openstack-dashboard
     ```
 - **B2 :** Sao lưu file `/etc/openstack-dashboard/local_settings` :
     ```
@@ -923,7 +884,7 @@
     - Thêm các dòng sau vào cuối file :
         ```py
         OPENSTACK_KEYSTONE_MULTIDOMAIN_SUPPORT = True
-        OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = "Default"
+        OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = "default"
         OPENSTACK_KEYSTONE_DEFAULT_ROLE = "user"
         OPENSTACK_API_VERSIONS = {
             "identity": 3,
@@ -942,7 +903,7 @@
         ```
 - **B5 :** Khởi động lại dịch vụ :
     ```
-    # systemctl restart httpd memcached
+    # service httpd memcached restart
     ```
 - **B6 :** Truy cập đường dẫn sau trên trình duyệt để vào dashboard. Đăng nhập bằng tài khoản `admin`/ `Passw0rd123` vừa tạo ở trên:
     ```

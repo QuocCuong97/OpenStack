@@ -1,4 +1,4 @@
-# Cài đặt OpenStack Train trên Ubuntu 18.04
+# Cài đặt OpenStack Train trên CentOS 7
 ## **Mô hình**
 
 <img src=https://i.imgur.com/XpxU968.png>
@@ -11,8 +11,8 @@
 ### **1) Cài đặt ban đầu trên cả 3 node**
 - **B1 :** Update các gói phần mềm và các package cơ bản:
     ```
-    # apt install wget -y
-    # apt update -y
+    # yum install epel-release wget -y
+    # yum update -y
     ```
 - **B2 :** Thiết lập hostname :
     ```
@@ -31,8 +31,8 @@
     ```
     # sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
     # sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
-    # systemctl disable ufw
-    # systemctl stop ufw
+    # systemctl disable firewalld
+    # systemctl stop firewalld
     # systemctl stop NetworkManager
     # systemctl disable NetworkManager
     # systemctl enable network
@@ -43,17 +43,15 @@
 #### **2.1) Cài đặt package OpenStack trên cả 3 node**
 - Thực hiện các lệnh để cài đặt **OpenStack** :
     ```
-    # apt-get install software-properties-common
-    # add-apt-repository cloud-archive:train
-    # apt -y upgrade -y
-    # apt -y install crudini
-    # apt -y install python-openstackclient python3-openstackclient
+    # yum -y install centos-release-openstack-train
+    # yum -y upgrade -y
+    # yum -y install python-openstackclient openstack-selinux crudini
     ```
 #### **2.2) Cài đặt NTP**
 ##### **2.2.1) Cài đặt NTP trên node `controller`**
 - **B1 :** Cài đặt `chrony` sử dụng làm NTP :
     ```
-    # apt -y install chrony
+    # yum -y install chrony
     ```
 - **B2 :** Sao lưu file cấu hình của `chrony` :
     ```
@@ -77,11 +75,12 @@
     ```
 - **B6 :** Khởi động lại chrony sau khi sửa file cấu hình :
     ```
-    # service chrony restart
+    # systemctl start chronyd
+    # systemctl enable chronyd
     ```
 - **B7 :** Kiểm tra lại trạng thái của `chrony` :
     ```
-    # service chrony status
+    # systemctl status chronyd
     ```
     <img src=https://i.imgur.com/Cr3QPzj.png>
 
@@ -95,7 +94,7 @@
 #### **2.2.2) Cài đặt NTP trên các node `compute`**
 - **B1 :** Cài đặt `chrony` sử dụng làm NTP :
     ```
-    # apt -y install chrony
+    # yum -y install chrony
     ```
 - **B2 :** Sao lưu file cấu hình của `chrony` :
     ```
@@ -115,11 +114,12 @@
     > 2 node `compute` sẽ đồng bộ thời gian về từ `controller`
 - **B6 :** Khởi động lại chrony sau khi sửa file cấu hình :
     ```
-    # service chrony restart
+    # systemctl start chronyd
+    # systemctl enable chronyd
     ```
 - **B7 :** Kiểm tra lại trạng thái của `chrony` :
     ```
-    # service chrony status
+    # systemctl status chronyd
     ```
     <img src=https://i.imgur.com/fjRIxSR.png>
     <img src=https://i.imgur.com/0L1YU6g.png>
@@ -137,7 +137,7 @@
 - `Memcached` thường chạy trên node `controller`
 - **B1 :** Cài đặt `memcached` :
     ```
-    # apt -y install memcached python-memcache
+    # yum -y install memcached python-memcached
     ```
 - **B2 :** Backup file cấu hình của `memcached` :
     ```
@@ -149,11 +149,12 @@
     ```
 - **B4 :** Khởi động lại `memcached` :
     ```
-    # service memcached restart
+    # systemctl enable memcached
+    # systemctl start memcached
     ```
 - **B5 :** Kiểm tra trạng thái dịch vụ :
     ```
-    # service memcached status
+    # systemctl status memcached
     ```
     <img src=https://i.imgur.com/PenIOOl.png>
 
@@ -161,7 +162,7 @@
 - Hầu hết các dịch vụ của **OpenStack** sử dụng cơ sở dữ liệu **SQL** để lưu thông tin. DB thường sẽ chạy trên node `controller`. Các dịch vụ **OpenStack** cũng hỗ trợ các cơ sở dữ liệu SQL khác bao gồm **PostgreSQL**.
 - **B1 :** Cài đặt **`MariaDB`** :
     ```
-    # apt -y install mariadb-server python-pymysql
+    # yum -y install mariadb mariadb-server python2-PyMySQL
     ```
 - **B2 :** Tạo và chỉnh sửa file cấu hình của **OpenStack** :
     ```
@@ -178,22 +179,28 @@
         collation-server = utf8_general_ci
         character-set-server = utf8
         ```
-- **B3 :** Khởi động **`MariaDB`** :
+- **B3 :** Sửa file `/etc/my.cnf.d/mariadb-server.cnf` :
     ```
-    # service mysql restart
+    # crudini --set /etc/my.cnf.d/mariadb-server.cnf mysqld max_connections 500
+    # crudini --set /etc/my.cnf.d/mariadb-server.cnf mysqld character-set-server utf8
     ```
-- **B4 :** Kiểm tra trạng thái dịch vụ :
+- **B4 :** Khởi động **`MariaDB`** :
     ```
-    # service mysql restart
+    # systemctl start mariadb
+    # systemctl enable mariadb
+    ```
+- **B5 :** Kiểm tra trạng thái dịch vụ :
+    ```
+    # systemctl status mariadb
     ```
     <img src=https://i.imgur.com/h041Agl.png>
 
-- **B5 :** Bảo mật dịch vụ SQL bằng lệnh :
+- **B6 :** Bảo mật dịch vụ SQL bằng lệnh :
     ```
     # mysql_secure_installation
     ```
     > Trong bước này, set password cho user `root` (**VD :** '`Password123`)
-- **B6 :** Gán quyền cho user `root` và xóa user mặc định :
+- **B7 :** Gán quyền cho user `root` và xóa user mặc định :
     ```
     # mysql -u root -pPassword123
     > GRANT ALL PRIVILEGES ON *.* TO 'root'@'10.10.230.10' IDENTIFIED BY 'Password123' WITH GRANT OPTION;
@@ -207,11 +214,12 @@
 - Tuy nhiên, hầu hết các bản phân phối gói **OpenStack** đều hỗ trợ dịch vụ ***message queue*** cụ thể. Ta sẽ sử dụng **`RabbitMQ`** bởi vì hầu hết các phiên bản đều hỗ trợ nó.
 - **B1 :** Cài đặt `rabbitmq` :
     ```
-    # apt -y install rabbitmq-server
+    # yum -y install rabbitmq-server
     ```
 - **B2 :** Khởi động dịch vụ `rabbitmq` :
     ```
-    # service rabbitmq-server start
+    # systemctl enable rabbitmq-server
+    # systemctl start rabbitmq-server
     ```
 - **B3 :** Khai báo plugin cho `rabbitmq` :
     ```
@@ -249,7 +257,7 @@
 - **`ETCD`** là một ứng dụng lưu trữ dữ liệu phân tán theo theo kiểu ***key-value***, nó được các services trong **OpenStack** sử dụng lưu trữ cấu hình, theo dõi các trạng thái dịch vụ và các tình huống khác.
 - **B1 :** Cài đặt `etcd` :
     ```
-    # apt -y install etcd
+    # yum -y install etcd
     ```
 - **B2 :** Sao lưu file cấu hình của `etcd` :
     ```
@@ -293,7 +301,7 @@
     ```
 - **B2 :** Cài đặt **`Keystone`** :
     ```
-    # apt install -y keystone
+    # yum -y install openstack-keystone httpd mod_wsgi
     ```
 - **B3 :** Sao lưu file cấu hình của **`Keystone`** :
     ```
@@ -326,20 +334,24 @@
     --bootstrap-public-url http://controller:5000/v3/ \
     --bootstrap-region-id RegionOne
     ```
-- **B9 :** **`Keystone`** sẽ sử dụng httpd để chạy service, các request vào **`keystone`** sẽ thông qua `apache2`. Do vậy cần cấu hình `apache2` để **`keystone`** sử dụng. Sửa dòng `95` trong file cấu hình `/etc/apache2/apache2.conf` của dịch vụ `apache2` :
+- **B9 :** **`Keystone`** sẽ sử dụng httpd để chạy service, các request vào **`keystone`** sẽ thông qua `httpd`. Do vậy cần cấu hình `httpd` để **`keystone`** sử dụng. Sửa dòng `95` trong file cấu hình `/etc/httpd/conf/httpd.conf` của dịch vụ `httpd` :
     ```
-    # vi /etc/apache2/apache2.conf
+    # vi /etc/httpd/conf/httpd.conf
     :set nu
     ```
     <img src=https://i.imgur.com/y0dKTft.png>
-
-- **B11 :** Khởi động dịch vụ `apache2` :
+- **B10 :** Tạo liên kết (soft link) cho file `/usr/share/keystone/wsgi-keystone.conf` :
     ```
-    # service apache2 restart
+    # ln -s /usr/share/keystone/wsgi-keystone.conf /etc/httpd/conf.d/
+    ```
+- **B11 :** Khởi động dịch vụ `httpd` :
+    ```
+    # systemctl enable httpd
+    # systemctl start httpd
     ```
 - **B12 :** Kiểm tra lại trạng thái dịch vụ :
     ```
-    # systemctl status apache2
+    # systemctl status httpd
     ```
     <img src="https://i.imgur.com/sMjbj7L.png">
 
@@ -352,8 +364,8 @@
         export OS_USERNAME=admin
         export OS_PASSWORD=Password123
         export OS_PROJECT_NAME=admin
-        export OS_USER_DOMAIN_NAME=Default
-        export OS_PROJECT_DOMAIN_NAME=Default
+        export OS_USER_DOMAIN_NAME=default
+        export OS_PROJECT_DOMAIN_NAME=default
         export OS_AUTH_URL=http://controller:5000/v3
         export OS_IDENTITY_API_VERSION=3
         export OS_IMAGE_API_VERSION=2
@@ -405,7 +417,7 @@
     ```
 - **B4 :** Cài đặt `glance` và các package cần thiết :
     ```
-    # apt install -y glance
+    # yum install -y openstack-glance MySQL-python python-devel
     ```
 - **B5 :** Sao lưu file cấu hình **`Glance`** :
     ```
@@ -418,8 +430,8 @@
     # crudini --set /etc/glance/glance-api.conf keystone_authtoken auth_url http://controller:5000
     # crudini --set /etc/glance/glance-api.conf keystone_authtoken memcached_servers controller:11211
     # crudini --set /etc/glance/glance-api.conf keystone_authtoken auth_type password
-    # crudini --set /etc/glance/glance-api.conf keystone_authtoken project_domain_name Default
-    # crudini --set /etc/glance/glance-api.conf keystone_authtoken user_domain_name Default
+    # crudini --set /etc/glance/glance-api.conf keystone_authtoken project_domain_name default
+    # crudini --set /etc/glance/glance-api.conf keystone_authtoken user_domain_name default
     # crudini --set /etc/glance/glance-api.conf keystone_authtoken project_name service
     # crudini --set /etc/glance/glance-api.conf keystone_authtoken username glance
     # crudini --set /etc/glance/glance-api.conf keystone_authtoken password Password123
@@ -434,7 +446,8 @@
     ```
 - **B8 :** Khởi động dịch vụ **`glance`** :
     ```
-    # systemctl glance-api restart
+    # systemctl enable openstack-glance-api
+    # systemctl start openstack-glance-api
     ```
 - **B9 :** Tải image và import vào **`glance`** :
     ```
@@ -476,7 +489,7 @@
     ```
 - **B4 :** Cài đặt `placement` :
     ```
-    # apt install -y placement-api
+    # yum install -y openstack-placement-api
     ```
 - **B5 :** Sao lưu file cấu hình của `placement` :
     ```
@@ -489,19 +502,35 @@
     # crudini --set /etc/placement/placement.conf keystone_authtoken auth_url http://controller:5000/v3
     # crudini --set /etc/placement/placement.conf keystone_authtoken memcached_servers controller:11211
     # crudini --set /etc/placement/placement.conf keystone_authtoken auth_type password
-    # crudini --set /etc/placement/placement.conf keystone_authtoken project_domain_name Default
-    # crudini --set /etc/placement/placement.conf keystone_authtoken user_domain_name Default
+    # crudini --set /etc/placement/placement.conf keystone_authtoken project_domain_name default
+    # crudini --set /etc/placement/placement.conf keystone_authtoken user_domain_name default
     # crudini --set /etc/placement/placement.conf keystone_authtoken project_name service
     # crudini --set /etc/placement/placement.conf keystone_authtoken username placement
     # crudini --set /etc/placement/placement.conf keystone_authtoken password Password123
     ```
+- **B7 :** Khai báo phân quyền cho `placement` :
+    ```
+    # vi /etc/httpd/conf.d/00-nova-placement-api.conf
+    ```
+    - Thêm vào đoạn sau :
+        ```
+        <Directory /usr/bin>
+          <IfVersion >= 2.4>
+            Require all granted
+          </IfVersion>
+          <IfVersion < 2.4>
+            Order allow,deny
+            Allow from all
+          </IfVersion>
+        </Directory>
+        ```
 - **B8 :** Tạo các bảng, đồng bộ dữ liệu cho `placement` :
     ```
     # su -s /bin/sh -c "placement-manage db sync" placement
     ```
 - **B9 :** Khởi động lại `httpd` :
     ```
-    # service apache2 restart
+    # systemctl restart httpd
     ```
 ### **2.10) Cài đặt `Nova`**
 #### **2.10.1) Cài đặt `Nova` trên node `controller`**
@@ -535,7 +564,7 @@
     ```
 - **B4 :** Cài đặt `nova` và các package đi kèm :
     ```
-    # apt install -y nova-api nova-conductor nova-novncproxy nova-scheduler
+    # yum install -y openstack-nova-api openstack-nova-conductor openstack-nova-novncproxy openstack-nova-scheduler
     ```
 - **B5 :** Sao lưu file cấu hình của `nova` :
     ```
@@ -544,8 +573,6 @@
 - **B6 :** Cấu hình **`Nova`** :
     ```
     # crudini --set /etc/nova/nova.conf DEFAULT my_ip 10.10.230.10
-    # crudini --set /etc/nova/nova.conf DEFAULT use_neutron true
-    # crudini --set /etc/nova/nova.conf DEFAULT firewall_driver nova.virt.firewall.NoopFirewallDriver
     # crudini --set /etc/nova/nova.conf DEFAULT enabled_apis osapi_compute,metadata
     # crudini --set /etc/nova/nova.conf DEFAULT transport_url rabbit://openstack:Password123@controller:5672/
     # crudini --set /etc/nova/nova.conf api_database connection mysql+pymysql://nova:Password123@controller/nova_api
@@ -556,8 +583,8 @@
     # crudini --set /etc/nova/nova.conf keystone_authtoken auth_url http://controller:5000/
     # crudini --set /etc/nova/nova.conf keystone_authtoken memcached_servers controller:11211
     # crudini --set /etc/nova/nova.conf keystone_authtoken auth_type password
-    # crudini --set /etc/nova/nova.conf keystone_authtoken project_domain_name Default
-    # crudini --set /etc/nova/nova.conf keystone_authtoken user_domain_name Default
+    # crudini --set /etc/nova/nova.conf keystone_authtoken project_domain_name default
+    # crudini --set /etc/nova/nova.conf keystone_authtoken user_domain_name default
     # crudini --set /etc/nova/nova.conf keystone_authtoken project_name service
     # crudini --set /etc/nova/nova.conf keystone_authtoken username nova
     # crudini --set /etc/nova/nova.conf keystone_authtoken password Password123
@@ -567,25 +594,14 @@
     # crudini --set /etc/nova/nova.conf glance api_servers http://controller:9292
     # crudini --set /etc/nova/nova.conf oslo_concurrency lock_path /var/lib/nova/tmp
     # crudini --set /etc/nova/nova.conf placement region_name RegionOne
-    # crudini --set /etc/nova/nova.conf placement project_domain_name Default
+    # crudini --set /etc/nova/nova.conf placement project_domain_name default
     # crudini --set /etc/nova/nova.conf placement project_name service
     # crudini --set /etc/nova/nova.conf placement auth_type password
-    # crudini --set /etc/nova/nova.conf placement user_domain_name Default
+    # crudini --set /etc/nova/nova.conf placement user_domain_name default
     # crudini --set /etc/nova/nova.conf placement auth_url http://controller:5000/v3
     # crudini --set /etc/nova/nova.conf placement username placement
     # crudini --set /etc/nova/nova.conf placement password Password123
     # crudini --set /etc/nova/nova.conf scheduler discover_hosts_in_cells_interval 300
-    # crudini --set /etc/nova/nova.conf neutron url http://controller:9696
-    # crudini --set /etc/nova/nova.conf neutron auth_url http://controller:5000
-    # crudini --set /etc/nova/nova.conf neutron region_name RegionOne
-    # crudini --set /etc/nova/nova.conf neutron auth_type password
-    # crudini --set /etc/nova/nova.conf neutron project_domain_name Default
-    # crudini --set /etc/nova/nova.conf neutron user_domain_name Default
-    # crudini --set /etc/nova/nova.conf neutron project_name service
-    # crudini --set /etc/nova/nova.conf neutron username neutron
-    # crudini --set /etc/nova/nova.conf neutron password Password123
-    # crudini --set /etc/nova/nova.conf neutron service_metadata_proxy True
-    # crudini --set /etc/nova/nova.conf neutron metadata_proxy_shared_secret Password123
     ```
 - **B7 :** Thực hiện lệnh để sinh bảng cho **`Nova`** :
     ```
@@ -601,7 +617,8 @@
     <img src=https://i.imgur.com/LvkPXdv.png>
 - **B9 :** Kích hoạt và khởi động các dịch vụ của **`Nova`** :
     ```
-    # service restart nova-api nova-scheduler nova-conductor nova-novncproxy
+    # systemctl enable openstack-nova-api openstack-nova-scheduler openstack-nova-conductor openstack-nova-novncproxy
+    # systemctl start openstack-nova-api openstack-nova-scheduler openstack-nova-conductor openstack-nova-novncproxy
     ```
 - **B10 :** Kiểm tra lại xem dịch vụ của `nova` đã hoạt động chưa :
     ```
@@ -612,7 +629,7 @@
 #### **2.10.2) Cài đặt `Nova` trên các node `compute`**
 - **B1 :** Cài đặt các gói của `nova` :
     ```
-    # apt install -y nova-compute
+    # yum install -y openstack-nova-compute openstack-utils
     ```
 - **B2 :** Sao lưu file cấu hình của **`Nova`** :
     ```
@@ -623,8 +640,6 @@
     # crudini --set /etc/nova/nova.conf DEFAULT enabled_apis osapi_compute,metadata
     # crudini --set /etc/nova/nova.conf DEFAULT transport_url rabbit://openstack:Password123@controller
     # crudini --set /etc/nova/nova.conf DEFAULT my_ip 10.10.230.11
-    # crudini --set /etc/nova/nova.conf DEFAULT use_neutron true
-    # crudini --set /etc/nova/nova.conf DEFAULT firewall_driver nova.virt.firewall.NoopFirewallDriver
     # crudini --set /etc/nova/nova.conf api_database connection mysql+pymysql://nova:Password123@controller/nova_api
     # crudini --set /etc/nova/nova.conf database connection mysql+pymysql://nova:Password123@controller/nova
     # crudini --set /etc/nova/nova.conf api auth_strategy keystone
@@ -632,8 +647,8 @@
     # crudini --set /etc/nova/nova.conf keystone_authtoken auth_url http://controller:5000/
     # crudini --set /etc/nova/nova.conf keystone_authtoken memcached_servers controller:11211
     # crudini --set /etc/nova/nova.conf keystone_authtoken auth_type password
-    # crudini --set /etc/nova/nova.conf keystone_authtoken project_domain_name Default
-    # crudini --set /etc/nova/nova.conf keystone_authtoken user_domain_name Default
+    # crudini --set /etc/nova/nova.conf keystone_authtoken project_domain_name default
+    # crudini --set /etc/nova/nova.conf keystone_authtoken user_domain_name default
     # crudini --set /etc/nova/nova.conf keystone_authtoken project_name service
     # crudini --set /etc/nova/nova.conf keystone_authtoken username nova
     # crudini --set /etc/nova/nova.conf keystone_authtoken password Password123
@@ -644,18 +659,19 @@
     # crudini --set /etc/nova/nova.conf glance api_servers http://controller:9292
     # crudini --set /etc/nova/nova.conf oslo_concurrency lock_path /var/lib/nova/tmp
     # crudini --set /etc/nova/nova.conf placement region_name RegionOne
-    # crudini --set /etc/nova/nova.conf placement project_domain_name Default
+    # crudini --set /etc/nova/nova.conf placement project_domain_name default
     # crudini --set /etc/nova/nova.conf placement project_name service
     # crudini --set /etc/nova/nova.conf placement auth_type password
-    # crudini --set /etc/nova/nova.conf placement user_domain_name Default
+    # crudini --set /etc/nova/nova.conf placement user_domain_name default
     # crudini --set /etc/nova/nova.conf placement auth_url http://controller:5000/v3
     # crudini --set /etc/nova/nova.conf placement username placement
     # crudini --set /etc/nova/nova.conf placement password Password123
-    # crudini --set /etc/nova/nova-compute.conf libvirt virt_type qemu
+    # crudini --set /etc/nova/nova.conf libvirt virt_type qemu
     ```
 - **B4 :** Khởi động **`Nova`** :
     ```
-    # service start nova-compute
+    # systemctl enable libvirtd openstack-nova-compute
+    # systemctl start libvirtd openstack-nova-compute
     ```
 #### **2.10.3) Thêm các node `compute` vào hệ thống (trên node `controller`)**
 - **B1 :** Kiểm tra các node `compute` đã up hay chưa :
@@ -691,7 +707,7 @@
     ```
 - **B3 :** Cài đặt **`Neutron`** :
     ```
-    # apt install -y neutron-server neutron-plugin-ml2 neutron-linuxbridge-agent neutron-dhcp-agent neutron-metadata-agent
+    # yum install -y openstack-neutron openstack-neutron-ml2 openstack-neutron-linuxbridge ebtables
     ```
 - **B4 :** Sao lưu các file cấu hình của **`Neutron`** :
     ```
@@ -701,7 +717,23 @@
     # cp /etc/neutron/dhcp_agent.ini /etc/neutron/dhcp_agent.ini.bak
     # cp /etc/neutron/metadata_agent.ini /etc/neutron/metadata_agent.ini.bak
     ```
-- **B5 :** Cấu hình file `/etc/neutron/neutron.conf` :
+- **B5 :** Cấu hình file `/etc/nova/nova.conf` :
+    ```
+    # crudini --set /etc/nova/nova.conf DEFAULT use_neutron true
+    # crudini --set /etc/nova/nova.conf DEFAULT firewall_driver nova.virt.firewall.NoopFirewallDriver
+    # crudini --set /etc/nova/nova.conf neutron url http://controller:9696
+    # crudini --set /etc/nova/nova.conf neutron auth_url http://controller:5000
+    # crudini --set /etc/nova/nova.conf neutron region_name RegionOne
+    # crudini --set /etc/nova/nova.conf neutron auth_type password
+    # crudini --set /etc/nova/nova.conf neutron project_domain_name default
+    # crudini --set /etc/nova/nova.conf neutron user_domain_name default
+    # crudini --set /etc/nova/nova.conf neutron project_name service
+    # crudini --set /etc/nova/nova.conf neutron username neutron
+    # crudini --set /etc/nova/nova.conf neutron password Password123
+    # crudini --set /etc/nova/nova.conf neutron service_metadata_proxy True
+    # crudini --set /etc/nova/nova.conf neutron metadata_proxy_shared_secret Password123
+    ```
+- **B6 :** Cấu hình file `/etc/neutron/neutron.conf` :
     ```
     # crudini --set /etc/neutron/neutron.conf DEFAULT core_plugin ml2
     # crudini --set /etc/neutron/neutron.conf DEFAULT service_plugins
@@ -714,22 +746,22 @@
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_url http://controller:5000
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken memcached_servers controller:11211
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_type password
-    # crudini --set /etc/neutron/neutron.conf keystone_authtoken project_domain_name Default
-    # crudini --set /etc/neutron/neutron.conf keystone_authtoken user_domain_name Default
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken project_domain_name default
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken user_domain_name default
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken project_name service
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken username neutron
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken password Password123
     # crudini --set /etc/neutron/neutron.conf nova auth_url http://controller:5000
     # crudini --set /etc/neutron/neutron.conf nova auth_type password
-    # crudini --set /etc/neutron/neutron.conf nova project_domain_name Default
-    # crudini --set /etc/neutron/neutron.conf nova user_domain_name Default
+    # crudini --set /etc/neutron/neutron.conf nova project_domain_name default
+    # crudini --set /etc/neutron/neutron.conf nova user_domain_name default
     # crudini --set /etc/neutron/neutron.conf nova region_name RegionOne
     # crudini --set /etc/neutron/neutron.conf nova project_name service
     # crudini --set /etc/neutron/neutron.conf nova username nova
     # crudini --set /etc/neutron/neutron.conf nova password Password123
     # crudini --set /etc/neutron/neutron.conf oslo_concurrency lock_path /var/lib/neutron/tmp
     ```
-- **B6 :** Sửa file cấu hình `/etc/neutron/plugins/ml2/ml2_conf.ini` :
+- **B7 :** Sửa file cấu hình `/etc/neutron/plugins/ml2/ml2_conf.ini` :
     ```
     # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2 type_drivers flat,vlan,vxlan
     # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2 tenant_network_types vxlan
@@ -739,7 +771,7 @@
     # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2_type_vxlan vni_ranges 1:1000
     # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini securitygroup enable_ipset True
     ```
-- **B7 :** Sửa file cấu hình `/etc/neutron/plugins/ml2/linuxbridge_agent.ini` :
+- **B8 :** Sửa file cấu hình `/etc/neutron/plugins/ml2/linuxbridge_agent.ini` :
     ```
     # crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini linux_bridge physical_interface_mappings provider:eth0
     # crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini vxlan enable_vxlan True
@@ -747,24 +779,28 @@
     # crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini securitygroup enable_security_group True
     # crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini securitygroup firewall_driver neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
     ```
-- **B8 :** Khai báo `sysctl` :
+- **B9 :** Khai báo `sysctl` :
     ```
     # echo 'net.bridge.bridge-nf-call-iptables = 1' >> /etc/sysctl.conf
     # echo 'net.bridge.bridge-nf-call-ip6tables = 1' >> /etc/sysctl.conf
     # modprobe br_netfilter
     # /sbin/sysctl -p
     ```
-- **B10 :** Thiết lập database :
+- **B10 :** Tạo liên kết file :
+    ```
+    # ln -s /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugin.ini
+    ```
+- **B11 :** Thiết lập database :
     ```
     # su -s /bin/sh -c "neutron-db-manage --config-file /etc/neutron/neutron.conf \
     --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head" neutron
     ```
-- **B11 :** Khởi động dịch vụ **`neutron`** :
+- **B12 :** Khởi động dịch vụ **`neutron`** :
     ```
-    # service start neutron-server neutron-linuxbridge-agent neutron-dhcp-agent neutron-metadata-agent
-    # service nova-api restart
+    # systemctl enable neutron-server neutron-linuxbridge-agent neutron-dhcp-agent neutron-metadata-agent
+    # systemctl start neutron-server neutron-linuxbridge-agent neutron-dhcp-agent neutron-metadata-agent
     ```
-- **B12 :** Kiểm tra lại trạng thái dịch vụ :
+- **B13 :** Kiểm tra lại trạng thái dịch vụ :
     ```
     # openstack network agent list
     ```
@@ -773,18 +809,20 @@
 #### **2.11.2) Cài đặt `Neutron` trên các node `compute`**
 - **B1 :** Khai báo bổ sung cho **`Nova`** :
     ```
+    # crudini --set /etc/nova/nova.conf DEFAULT use_neutron true
+    # crudini --set /etc/nova/nova.conf DEFAULT firewall_driver nova.virt.firewall.NoopFirewallDriver
     # crudini --set /etc/nova/nova.conf neutron url http://controller:9696
     # crudini --set /etc/nova/nova.conf neutron auth_url http://controller:5000
     # crudini --set /etc/nova/nova.conf neutron auth_type password
-    # crudini --set /etc/nova/nova.conf neutron project_domain_name Default
-    # crudini --set /etc/nova/nova.conf neutron user_domain_name Default
+    # crudini --set /etc/nova/nova.conf neutron project_domain_name default
+    # crudini --set /etc/nova/nova.conf neutron user_domain_name default
     # crudini --set /etc/nova/nova.conf neutron project_name service
     # crudini --set /etc/nova/nova.conf neutron username neutron
     # crudini --set /etc/nova/nova.conf neutron password Password123
     ```
 - **B2 :** Cài đặt **`Neutron`** :
     ```
-    # apt install -y neutron-linuxbridge-agent
+    # yum install -y openstack-neutron openstack-neutron-ml2 openstack-neutron-linuxbridge ebtables ipset
     ```
 - **B3 :** Sao lưu các file cấu hình của **`Neutron`** :
     ```
@@ -805,8 +843,8 @@
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_url http://controller:5000
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken memcached_servers controller:11211
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_type password
-    # crudini --set /etc/neutron/neutron.conf keystone_authtoken project_domain_name Default
-    # crudini --set /etc/neutron/neutron.conf keystone_authtoken user_domain_name Default
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken project_domain_name default
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken user_domain_name default
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken project_name service
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken username neutron
     # crudini --set /etc/neutron/neutron.conf keystone_authtoken password Password123
@@ -841,16 +879,17 @@
     ```
 - **B9 :** Khởi động **`Neutron`** :
     ```
-    # service neutron-linuxbridge-agent restart
+    # systemctl enable neutron-linuxbridge-agent neutron-metadata-agent neutron-dhcp-agent
+    # systemctl start neutron-linuxbridge-agent neutron-metadata-agent neutron-dhcp-agent
     ```
 - **B10 :** Khởi động lại dịch vụ `openstack-nova-compute` :
     ```
-    # service nova-compute restart
+    # systemctl restart openstack-nova-compute
     ```
 ### **2.12) Cài đặt và cấu hình `Horizon` trên node `controller`**
 - **B1 :** Cài đặt `openstack-dashboard` :
     ```
-    # apt install -y openstack-dashboard
+    # yum install -y openstack-dashboard
     ```
 - **B2 :** Sao lưu file `/etc/openstack-dashboard/local_settings` :
     ```
@@ -892,7 +931,7 @@
     - Thêm các dòng sau vào cuối file :
         ```py
         OPENSTACK_KEYSTONE_MULTIDOMAIN_SUPPORT = True
-        OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = "Default"
+        OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = "default"
         OPENSTACK_KEYSTONE_DEFAULT_ROLE = "user"
         OPENSTACK_API_VERSIONS = {
             "identity": 3,
@@ -911,7 +950,7 @@
         ```
 - **B5 :** Khởi động lại dịch vụ :
     ```
-    # service httpd memcached restart
+    # systemctl restart httpd memcached
     ```
 - **B6 :** Truy cập đường dẫn sau trên trình duyệt để vào dashboard. Đăng nhập bằng tài khoản `admin`/ `Passw0rd123` vừa tạo ở trên:
     ```
