@@ -113,3 +113,54 @@
     # openstack server create --flavor Flavor-A --image cirros VM01
     ```
     <img src=https://i.imgur.com/sjNdfvx.png>
+
+#### **List các server đang có**
+- Cú pháp :
+    ```
+    # openstack server list
+    ```
+    <img src=https://i.imgur.com/CVkJqlH.png>
+
+#### **Show thông tin chi tiết một instance**
+- Cú pháp :
+    ```
+    # openstack server show <instance_name|instance_id>
+    ```
+- **VD1 :**
+    ```
+    # openstack server show VM01
+    ```
+    <img src=https://i.imgur.com/a8ptjjh.png>
+
+- **VD2 :** Hiển thị thông tin phân tích ram và disk của instance :
+    ```
+    # openstack server show VM01 --diagnostics
+    ```
+    <img src=https://i.imgur.com/6dR5kMb.png>
+
+#### **Start, Stop, Reboot, Suspend, Resume**
+- Cú pháp :
+    ```
+    # openstack server <start|stop|reboot|suspend|resume> <instance_name|instance_ID>
+    ```
+#### **Xóa Instance**
+- Cú pháp :
+    ```
+    # openstack server delete [--wait] <instance_name|instance_ID>
+    ```
+    > `--wait` : đợi lệnh cho đến khi quá trình xóa hoàn tất
+#### **List các Hypervisor (các compute)**
+- Cú pháp :
+    ```
+    # openstack hypervisor list
+    ```
+    <img src=https://i.imgur.com/ZMnJbnK.png>
+
+#### **Show thông tin chi tiết một Hypervisor**
+- Cú pháp :
+    ```
+    # openstack hypervisor show <hostname> --fit-width
+    ```
+    > `--fit-width` hiển thị vừa màn hình terminal
+
+    <img src=https://i.imgur.com/dLIE7x4.png>

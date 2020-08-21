@@ -179,28 +179,23 @@
         collation-server = utf8_general_ci
         character-set-server = utf8
         ```
-- **B3 :** Sửa file `/etc/my.cnf.d/mariadb-server.cnf` :
-    ```
-    # crudini --set /etc/my.cnf.d/mariadb-server.cnf mysqld max_connections 500
-    # crudini --set /etc/my.cnf.d/mariadb-server.cnf mysqld character-set-server utf8
-    ```
-- **B4 :** Khởi động **`MariaDB`** :
+- **B3 :** Khởi động **`MariaDB`** :
     ```
     # systemctl start mariadb
     # systemctl enable mariadb
     ```
-- **B5 :** Kiểm tra trạng thái dịch vụ :
+- **B4 :** Kiểm tra trạng thái dịch vụ :
     ```
     # systemctl status mariadb
     ```
     <img src=https://i.imgur.com/h041Agl.png>
 
-- **B6 :** Bảo mật dịch vụ SQL bằng lệnh :
+- **B5 :** Bảo mật dịch vụ SQL bằng lệnh :
     ```
     # mysql_secure_installation
     ```
     > Trong bước này, set password cho user `root` (**VD :** '`Password123`)
-- **B7 :** Gán quyền cho user `root` và xóa user mặc định :
+- **B6 :** Gán quyền cho user `root` và xóa user mặc định :
     ```
     # mysql -u root -pPassword123
     > GRANT ALL PRIVILEGES ON *.* TO 'root'@'10.10.230.10' IDENTIFIED BY 'Password123' WITH GRANT OPTION;
@@ -655,7 +650,7 @@
     # crudini --set /etc/nova/nova.conf vnc enabled true
     # crudini --set /etc/nova/nova.conf vnc server_listen 0.0.0.0
     # crudini --set /etc/nova/nova.conf vnc server_proxyclient_address \$my_ip
-    # crudini --set /etc/nova/nova.conf vnc novncproxy_base_url http://controller:6080/vnc_auto.html
+    # crudini --set /etc/nova/nova.conf vnc novncproxy_base_url http://10.5.11.210:6080/vnc_auto.html
     # crudini --set /etc/nova/nova.conf glance api_servers http://controller:9292
     # crudini --set /etc/nova/nova.conf oslo_concurrency lock_path /var/lib/nova/tmp
     # crudini --set /etc/nova/nova.conf placement region_name RegionOne
