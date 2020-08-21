@@ -44,7 +44,7 @@
 - Thực hiện các lệnh để cài đặt **OpenStack** :
     ```
     # yum -y install centos-release-openstack-train
-    # yum -y upgrade -y
+    # yum -y upgrade
     # yum -y install python-openstackclient openstack-selinux crudini
     ```
 #### **2.2) Cài đặt NTP**
@@ -946,6 +946,8 @@
 - **B5 :** Khởi động lại dịch vụ :
     ```
     # systemctl restart httpd memcached
+    # systemctl restart openstack-nova-api openstack-nova-scheduler openstack-nova-conductor openstack-nova-novncproxy
+    # systemctl start neutron-server neutron-linuxbridge-agent neutron-dhcp-agent neutron-metadata-agent
     ```
 - **B6 :** Truy cập đường dẫn sau trên trình duyệt để vào dashboard. Đăng nhập bằng tài khoản `admin`/ `Passw0rd123` vừa tạo ở trên:
     ```

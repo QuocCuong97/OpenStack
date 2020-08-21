@@ -161,6 +161,6 @@
     ```
     # openstack hypervisor show <hostname> --fit-width
     ```
-    > `--fit-width` hiển thị vừa màn hình terminal
+    > `--fit-width` : hiển thị vừa màn hình terminal
 
     <img src=https://i.imgur.com/dLIE7x4.png>
