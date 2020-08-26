@@ -30,6 +30,7 @@
     ```
     # systemctl disable ufw
     # systemctl stop ufw
+    # reboot
     ```
 ### **2) Cài đặt OpenStack**
 #### **2.1) Cài đặt package OpenStack trên cả 3 node**
