@@ -8,5 +8,6 @@
     - Cấu hình boot lỗi
 ## **2) Các bước thực hiện Rescue**
 ### **2.1) Rescue instance boot từ local disk**
+#### **2.1.1) Thực hiện reset password VM sử dụng image SystemRescueCD**
 - 
 ### **2.2) Rescue instance boot từ volume**
