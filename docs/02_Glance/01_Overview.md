@@ -1,5 +1,5 @@
 # Tổng quan về Glance
-## **1) Giới thiệu**
+## **1) Giới thiệu** <img src=https://i.imgur.com/jugFIWv.png align=right width=15%>
 - **Glance** - hay **Openstack Image service** là dịch vụ trung tâm trong kiến trúc **IaaS**. Hiểu đơn giản thì nó là trung tâm quản lý các image.
 - **Glance** chấp nhận các API request cho disk hoặc server image và metadata từ phía người dùng hoặc từ compute service. Nó cũng hỗ trợ lưu trữ disk hoặc server image trên rất nhiều loại repository, bao gồm cả **OpenStack Object Storage** - **Swift**
 - Trong **Glance**, các images được lưu trữ giống như các ***template***. Các ***template*** này sử dụng để vận hành máy ảo mới. Glance là giải pháp để quản lý các image trên cloud. Nó cũng có thể lấy bản snapshots từ các máy ảo đang chạy để thực hiện dự phòng cho các VM và trạng thái các máy ảo đó.

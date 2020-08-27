@@ -1,5 +1,5 @@
 # Tổng quan về Nova
-## **1) Giới thiệu**
+## **1) Giới thiệu** <img src=https://i.imgur.com/gnHEP0O.png align=right width=15%>
 - **Nova** là service chịu trách nhiệm chứa và quản lí các hệ thống cloud computing. **OpenStack Nova** là một project core trong **OpenStack**, nhằm mục đích cấp phép các tài nguyên và quản lý số lượng lớn máy ảo.
 - **Nova - OpenStack Compute Service** chính là phần chính quan trọng nhất trong kiến trúc hệ thống **Infrastructure-as-a-Service (IaaS)**. 
 - Phần lớn các modules của **Nova** được viết bằng **Python**.

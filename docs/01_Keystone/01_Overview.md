@@ -1,5 +1,5 @@
 # Tổng quan về Keystone
-## **1) Giới thiệu**
+## **1) Giới thiệu** <img src=https://i.imgur.com/Tua2yP9.png align=right width=20%>
 - Môi trường cloud theo mô hình dịch vụ **Infrastructure-as-a-Service** layer (**IaaS**) cung cấp cho người dùng khả năng truy cập vào các tài nguyên quan trọng ví dụ như máy ảo, kho lưu trữ và kết nối mạng. Bảo mật vẫn luôn là vấn đề quan trọng đối với mọi môi trường cloud và trong **OpenStack** thì **Keystone** chính là dịch vụ đảm nhiệm công việc ấy. Nó sẽ chịu trách nhiệm cung cấp các kết nối mang tính bảo mật cao tới các nguồn tài nguyên cloud.
 ## **2) Các chức năng chính của Keystone**
 ### **2.1) Identity *(nhận diện)***
