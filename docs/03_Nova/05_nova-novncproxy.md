@@ -41,3 +41,13 @@
     token_ttl=600
     ...
     ```
+## **4) Show đường dẫn console của instance**
+- Có thể sử dụng lệnh sau trong terminal để lấy đường dẫn console `novnc` truy cập instance trên trình duyệt :
+    ```
+    # openstack console url show <instance_name|instance_id>
+    ```
+- **VD :**
+    ```
+    # openstack console url show VM06
+    ```
+    <img src=https://i.imgur.com/ikl4z5j.png>
