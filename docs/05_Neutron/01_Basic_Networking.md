@@ -18,6 +18,18 @@
 ### **2.3) Firewall**
 - **Firewall** được sử dụng để giới hạn lưu lượng tới và từ một host hoặc một mạng. Một **firewall** có thể hoặc là một thiết bị chuyên dụng kết nối giữa 2 mạng hoặc là một phần mềm dùng để lọc gói tin cài đặt trên hệ điều hành. **Firewall** được sử dụng để giới hạn traffic tới host dựa vào các rule được định nghĩa trên host. Chúng có thể lọc các gói tin dựa trên một số yếu tố như địa chỉ IP nguồn, IP đích, port, trạng thái kết nối,... Chúng thường được sử dụng để bảo vệ host khỏi các truy cập không an toàn hoặc các cuộc tấn công mạng. Các hệ điều hành Linux đều sử dụng **firewall** thông qua **Iptables** .
 ### **2.4) Load balancer**
-- **Load balancer** có thể là phần mềm hoặc thiết bị phần cứng cho phép traffic được phân phối đều trên các server. Bằng việc phân phối đều traffic trên các server, nó sẽ tránh được sự quá tải trên 1 server, do đó ngăn chặn được việc 1 điểm bị sập trong mạng .
+- **Load balancer** có thể là phần mềm hoặc thiết bị phần cứng cho phép traffic được phân phối đều trên các server. Bằng việc phân phối đều traffic trên các server, nó sẽ tránh được sự quá tải trên 1 server, do đó tránh được việc 1 điểm bị sập trong mạng .
 ## **3) Các giao thức overlay (tunnel)**
-### **3.1) 
+- **Tunneling** là một cơ chế cho phép trung chuyển các payload qua các mạng phức tạp, không tương thích với nhau. Nó cho phép người dùng mạng truy cập được tới những mạng được bảo mật hoặc đến những mạng kém an toàn. Dữ liệu được mã hóa sẽ được đưa vào payload. Các user trong tunnel sẽ là public với nhau mặc dù họ đang ở trong các mạng private .
+### **3.1) Generic routing encapsulation (GRE)**
+- **GRE** là một 
+### **3.2) Virtual extensible local area network (VXLAN)**
+- Mục đích của **VXLAN** là cung cấp mạng cô lập có thể mở rộng. **VXLAN** là một giao thức layer 2 chạy trên mạng layer 3. Nó cho phép
+### **3.3) Generic Network Virtualization Encapsulation (GENEVE)**
+## **4) Network namespace**
+### **4.1) Linux network namespaces**
+### **4.2) Virtual routing and forwarding (VRF)**
+## **5) Network Address Translation**
+### **5.1) SNAT**
+### **5.2) DNAT**
+### **5.3) One-to-one NAT**
