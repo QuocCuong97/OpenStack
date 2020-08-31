@@ -93,9 +93,9 @@
 
     <img src=https://i.imgur.com/AHURwIS.png>
 
-- **B4 :** Kiểm tra bản **snapshot** vừa tạo tại tab ***Project*** -> ***Compute*** -> ***Images***
+- **B4 :** Kiểm tra bản **snapshot** vừa tạo tại tab ***Project*** -> ***Volumes*** -> ***Snapshots*** :
 
-    <img src=https://i.imgur.com/hlxRxuw.png>
+    <img src=https://i.imgur.com/OhycEiG.png>
 
 - **B5 :** Thử xóa file `test_snapshot` vừa tạo trên instance :
     
