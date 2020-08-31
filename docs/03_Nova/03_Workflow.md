@@ -25,7 +25,7 @@
 ## **3) Các yêu cầu khi thực hiện các lệnh**
 
 | Command | Req’d VM States | Req’d Task States | Target State |
-|---------|-----------------|-------------------|------|-------|
+|---------|-----------------|-------------------|--------------|
 | `pause` | Active, Shutoff, Rescued | Resize Verify, unset | Paused |
 | `unpause` | Paused | N/A | Active |
 | `suspend` | Active, Shutoff | N/A | Suspended |
