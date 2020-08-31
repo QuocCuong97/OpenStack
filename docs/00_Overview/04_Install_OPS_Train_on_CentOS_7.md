@@ -1034,6 +1034,7 @@
     # crudini --set /etc/cinder/cinder.conf lvm volume_group cinder-volumes
     # crudini --set /etc/cinder/cinder.conf lvm target_protocol iscsi
     # crudini --set /etc/cinder/cinder.conf lvm target_helper lioadm
+    # crudini --set /etc/nova/nova.conf cinder os_region_name RegionOne
     ```
 - **B10 :** Đồng bộ database cho **`cinder`** :
     ```

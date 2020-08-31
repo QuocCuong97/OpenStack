@@ -113,3 +113,5 @@
 - **B8 :** Console vào instance và kiểm tra :
 
     <img src=https://i.imgur.com/aknjul9.png>
+
+    > Theo kết quả, instance sau khi tạo đã ở đúng trạng thái snapshot của instance trước đó, khi file `test_snapshot` chưa bị xóa

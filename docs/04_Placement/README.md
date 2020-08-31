@@ -1,1 +1,2 @@
 # Project Placement <img src=https://i.imgur.com/1uu0pTQ.png align=right width=15%>
+### [1. Tổng quan về Placement](https://github.com/QuocCuong97/OpenStack/blob/master/docs/04_Placement/README.md)
