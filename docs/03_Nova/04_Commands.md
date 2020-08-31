@@ -108,12 +108,21 @@
         [--wait]
         <server-name>
     ```
-- **VD :**
+- **VD1 :** Tạo instance từ image (không dùng volume) :
     ```
     # openstack server create --flavor Flavor-A --image cirros VM01
     ```
     <img src=https://i.imgur.com/sjNdfvx.png>
 
+- **VD2 :** Tạo instance từ volume :
+    ```
+    # openstack server create VM04 \
+    --flavor Flavor-A \
+    --volume 673cfb17-490e-4ad5-b4f0-9efbbcb5f446 \
+    --nic net-id=cdaf9772-ad08-471d-a3b6-332a9a3bbaa6 \
+    --user-data=cloud_config
+    ```
+    <img src=https://i.imgur.com/uGZS6Tt.png>
 #### **List các server đang có**
 - Cú pháp :
     ```

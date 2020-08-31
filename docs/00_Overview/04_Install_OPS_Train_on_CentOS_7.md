@@ -957,3 +957,108 @@
 
     <img src=https://i.imgur.com/7VO3zO4.png>
 
+### **2.13) Cài đặt và cấu hình `Cinder`**
+#### **2.13.1) Cài đặt Cinder trên node `controller`**
+- **B1 :** Tạo Database, user và phân quyền cho **`Cinder`** :
+    ```
+    # mysql -u root -pPassword123
+    > CREATE DATABASE cinder;
+    > GRANT ALL PRIVILEGES ON cinder.* TO 'cinder'@'localhost' IDENTIFIED BY 'Password123';
+    > GRANT ALL PRIVILEGES ON cinder.* TO 'cinder'@'%' IDENTIFIED BY 'Password123';
+    > FLUSH PRIVILEGES;
+    > exit;
+    ```
+- **B2 :** Tạo các user, service, endpoint cho **`Cinder`** :
+    ```
+    # openstack user create --domain default --password Password123 cinder
+    # openstack role add --project service --user cinder admin
+    # openstack service create --name cinderv2 --description "OpenStack Block Storage" volumev2
+    # openstack service create --name cinderv3 --description "OpenStack Block Storage" volumev3
+    # openstack endpoint create --region RegionOne volumev2 public http://controller:8776/v2/%\(project_id\)s
+    # openstack endpoint create --region RegionOne volumev2 internal http://controller:8776/v2/%\(project_id\)s
+    # openstack endpoint create --region RegionOne volumev2 admin http://controller:8776/v2/%\(project_id\)s
+    # openstack endpoint create --region RegionOne volumev3 public http://controller:8776/v3/%\(project_id\)s
+    # openstack endpoint create --region RegionOne volumev3 internal http://controller:8776/v3/%\(project_id\)s
+    # openstack endpoint create --region RegionOne volumev3 admin http://controller:8776/v3/%\(project_id\)s
+    ```
+- **B3 :** Cài đặt **`Cinder`** và các package cần thiết :
+    ```
+    # yum install -y openstack-cinder lvm2 device-mapper-persistent-data targetcli python-keystone
+    ```
+- **B4 :** Khởi động dịch vụ `lvm2-lvmetad` :
+    ```
+    # systemctl enable lvm2-lvmetad
+    # systemctl start lvm2-lvmetad
+    ```
+- **B5 :** Kiểm tra lại dung lượng disk :
+    ```
+    # lsblk
+    ```
+    <img src=https://i.imgur.com/IE1v0u7.png>
+
+    > Sử dụng `vdb` để tạo volume
+- **B6 :** Tạo các **pv**, **vg** cần thiết :
+    ```
+    # pvcreate /dev/vdb
+    # vgcreate cinder-volumes /dev/vdb
+    ```
+- **B7 :** Chỉnh sửa file `/etc/lvm/lvm.conf`:
+    - Uncomment dòng `141` :
+        ```
+        filter = [ "a|.*/|" ]
+        ```
+- **B8 :** Sao lưu file cấu hình **`Cinder`** :
+    ```
+    # cp /etc/cinder/cinder.conf /etc/cinder/cinder.conf.bak
+    ```
+- **B9 :** Chỉnh sửa file cấu hình **`cinder`** :
+    ```
+    # crudini --set /etc/cinder/cinder.conf database connection mysql+pymysql://cinder:Password123@controller/cinder
+    # crudini --set /etc/cinder/cinder.conf DEFAULT my_ip 10.10.230.10
+    # crudini --set /etc/cinder/cinder.conf DEFAULT transport_url rabbit://openstack:Password123@controller
+    # crudini --set /etc/cinder/cinder.conf DEFAULT enabled_backends lvm
+    # crudini --set /etc/cinder/cinder.conf DEFAULT glance_api_servers http://controller:9292
+    # crudini --set /etc/cinder/cinder.conf DEFAULT enable_v3_api True
+    # crudini --set /etc/cinder/cinder.conf DEFAULT auth_strategy keystone
+    # crudini --set /etc/cinder/cinder.conf keystone_authtoken www_authenticate_uri http://controller:5000
+    # crudini --set /etc/cinder/cinder.conf keystone_authtoken auth_url http://controller:5000
+    # crudini --set /etc/cinder/cinder.conf keystone_authtoken memcached_servers controller:11211
+    # crudini --set /etc/cinder/cinder.conf keystone_authtoken auth_type password
+    # crudini --set /etc/cinder/cinder.conf keystone_authtoken project_domain_name default
+    # crudini --set /etc/cinder/cinder.conf keystone_authtoken user_domain_name default
+    # crudini --set /etc/cinder/cinder.conf keystone_authtoken project_name service
+    # crudini --set /etc/cinder/cinder.conf keystone_authtoken username cinder
+    # crudini --set /etc/cinder/cinder.conf keystone_authtoken password Password123
+    # crudini --set /etc/cinder/cinder.conf oslo_concurrency lock_path /var/lib/cinder/tmp
+    # crudini --set /etc/cinder/cinder.conf lvm volume_driver cinder.volume.drivers.lvm.LVMVolumeDriver
+    # crudini --set /etc/cinder/cinder.conf lvm volume_group cinder-volumes
+    # crudini --set /etc/cinder/cinder.conf lvm target_protocol iscsi
+    # crudini --set /etc/cinder/cinder.conf lvm target_helper lioadm
+    ```
+- **B10 :** Đồng bộ database cho **`cinder`** :
+    ```
+    # su -s /bin/sh -c "cinder-manage db sync" cinder
+    ```
+- **B11 :** Khởi động lại `nova-api` :
+    ```
+    # systemctl restart openstack-nova-api
+    ```
+- **B12 :** Khởi động các service của **`cinder`** :
+    ```
+    # systemctl enable openstack-cinder-api openstack-cinder-scheduler openstack-cinder-volume target
+    # systemctl start openstack-cinder-api openstack-cinder-scheduler openstack-cinder-volume target
+    ```
+- **B13 :** Kiểm tra lại :
+    ```
+    # openstack volume service list
+    ```
+    <img src=https://i.imgur.com/XffFs8u.png>
+#### **2.13.2) Cấu hình thêm trên các node `compute`**
+- **B1 :** Chỉnh sửa file `/etc/nova/nova.conf` :
+    ```
+    # crudini --set /etc/nova/nova.conf DEFAULT block_device_allocate_retries 600
+    ```
+- **B2 :** Khởi động lại dịch vụ :
+    ```
+    # systemctl restart openstack-nova-compute
+    ```
