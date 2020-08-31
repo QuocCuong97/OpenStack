@@ -100,33 +100,16 @@
 - **B5 :** Thử xóa file `test_snapshot` vừa tạo trên instance :
     
     <img src=https://i.imgur.com/8LzA1mX.png>
-### **3.2) Sử dụng snapshot**
-#### **3.2.1) Tạo volume sử dụng snapshot vừa tạo**
-- **B1 :** Chọn tab ***Project*** -> ***Volumes*** -> ***Snapshots*** :
-
-    <img src=https://i.imgur.com/KuqcJbS.png>
-
-- **B2 :** Chọn bản **snapshot** vừa tạo, chọn **Create Volume** :
-
-    <img src=https://i.imgur.com/4BfSBnN.png>
-
-- **B3 :** Tại cửa sổ **Create Volume**, nhập tên volume, sau đó chọn ***Create Volume*** để tạo **volume** :
-
-    <img src=https://i.imgur.com/D02puYK.png>
-
-- **B4 :** **Volume** sau khi tạo xong :
-
-    <img src=https://i.imgur.com/Yk8eqog.png>
 
 #### **3.2) Tạo instance mới gắn với volume vừa tạo**
-- **B5 :** Các bước tạo **instance** tương tự [**phần 1**](#1). Chú ý bước chọn **volume** :
+- **B6 :** Các bước tạo **instance** tương tự [**phần 1**](#1). Chú ý bước chọn **volume** :
     
     <img src=https://i.imgur.com/jhmQeRR.png>
 
-- **B6 :**
+- **B7 :** Instance sau khi tạo xong :s
 
     <img src=https://i.imgur.com/r2TiA0h.png>
 
-- **B7 :**
+- **B8 :** Console vào instance và kiểm tra :
 
     <img src=https://i.imgur.com/aknjul9.png>
