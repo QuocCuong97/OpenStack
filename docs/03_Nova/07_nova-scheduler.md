@@ -18,12 +18,24 @@
 - **Availability zone** cho phép các các end-user chọn một host aggregate để chạy máy ảo. Ví dụ: sử dụng **availability zone** , người dùng có thể khởi tạo một máy ảo chạy trên DC FPT ở HCM
 - So sánh **Host Aggreegate** và **Availability Zone**
     - Một host có thể nằm trong nhiều **aggregates**, nhưng chỉ có thể thuộc về một **availability zone** . Mặc định thì một host sẽ là thành viên của **default availability zone** ngay cả khi nó không thuộc aggregate nào (tùy chọn cấu hình là `default_availability_zone`)
-### **1.4) Cấu hình scheduler hỗ trợ Host Aggreate**
+### **1.4) Cấu hình scheduler hỗ trợ Host Aggregate**
 - Một trường hợp sử dụng chung cho host aggregates là khi muốn hỗ trợ scheduling instances để một tập gồm một số các compute hosts có cùng khả năng cụ thể. Ví dụ, có thể muốn cho phép người dùng request compute host có SSD driver nếu họ cần tốc độ disk I/O nhanh hơn, hoặc cho phép compute host có GPU cards.
 - Khi nhận được yêu cầu từ người dùng, `nova-scheduler` sẽ filter những host phù hợp để launch máy ảo, những host không phù hợp sẽ bị loại. Sau đó nó dùng tiếp weighting để xác định xem đâu là host phù hợp nhất.
 - Để configure scheduler hỗ trợ **host aggregates**, thì `scheduler_default_filters` phải chứa `AggregateInstanceExtraSpecsFilter` ngoài các filters khác được sử dụng bởi scheduler. Thêm các dòng dưới đây vào `/etc/nova/nova.conf` trên host chạy `nova-scheduler` service để cho phép host aggregates filtering, cũng như các filter khác:
     ```
     enabled_filters=RetryFilter,AvailabilityZoneFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter
+    ```
+### **1.5) Các command thường dùng**
+#### **1.5.1) Availability Zone**
+- List các **Availability Zone** :
+    ```
+    # openstack availability zone list
+    ```
+    <img src=https://i.imgur.com/AkVO4Ex.png>
+#### **1.5.2) Host Aggregate**
+- List các **Host Aggregate** :
+    ```
+    # openstack aggregate list
     ```
 ## **2) Nova-scheduler**
 - **Nova-scheduler** service xác định compute node nào sẽ thực hiện chạy instance.
@@ -63,9 +75,9 @@
 - Các giá trị mặc định trong `nova.conf` là :
     ```
     --filter_scheduler.available_filters=nova.scheduler.filters.all_filters
-    --filter_scheduler.enabled_filters=ComputeFilter,AvailabilityZoneFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter
+    --filter_scheduler.enabled_filters=ComputeFilter,AvailabilityZoneFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,AggregateInstanceExtraSpecsFilter
     ```
-- Với cấu hình như trên thì tất cả các ***filter*** trong `nova.scheduler.filters` đều sẵn sàng và mặc định sẽ là `ComputeFilter`, `AvailabilityZoneFilter`, `ComputeCapabilitiesFilter`, `ImagePropertiesFilter`, `ServerGroupAntiAffinityFilter` và `ServerGroupAffinityFilter` sẽ được sử dụng .
+- Với cấu hình như trên thì tất cả các ***filter*** trong `nova.scheduler.filters` đều sẵn sàng và mặc định sẽ là `ComputeFilter`, `AvailabilityZoneFilter`, `ComputeCapabilitiesFilter`, `ImagePropertiesFilter`, `ServerGroupAntiAffinityFilter` và `ServerGroupAffinityFilter`, `AggregateInstanceExtraSpecsFilter` sẽ được sử dụng .
     > [Tham khảo thêm cấu hình Filtering](https://docs.openstack.org/nova/train/admin/configuration/schedulers.html)
 ### **2.2) Weight**
 - Là cách chọn compute node phù hợp nhất từ một nhóm các compute node hợp lệ bằng cách tính toán và đưa ra trọng số (***weights***) cho tất cả các máy chủ trong danh sách.
@@ -80,3 +92,75 @@
     <img src=https://i.imgur.com/ENriwDN.png>
 
     > [Tham khảo thêm về Weight](https://docs.openstack.org/nova/train/admin/configuration/schedulers.html#weights)
+
+## **3) Lab nova-scheduler**
+### **3.1) Host Aggregate Filter**
+- Tạo **aggregate** cho HDD Rack :
+    ```
+    # openstack aggregate create hdd-rack --zone rack1
+    # openstack aggregate set --property hdd=true hdd-rack
+    # openstack aggregate add host hdd-rack compute1
+    ```
+- Tạo **aggregate** cho SSD Rack :
+    ```
+    # openstack aggregate create ssd-rack --zone rack2
+    # openstack aggregate set --property ssd=true ssd-rack
+    # openstack aggregate add host ssd-rack compute2
+    ```
+- Cấu hình `Host Aggregate Filter` trong file `/etc/nova/nova.conf` :
+    ```
+    # crudini --set /etc/nova/nova.conf scheduler driver filter_scheduler
+    # crudini --set /etc/nova/nova.conf filter_scheduler available_filters nova.scheduler.filters.all_filters
+    # crudini --set /etc/nova/nova.conf filter_scheduler enabled_filters RetryFilter,AvailabilityZoneFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,AggregateInstanceExtraSpecsFilter
+    ```
+- Khởi động lại dịch vụ `nova-scheduler` và `nova-conductor` :
+    ```
+    # systemctl restart nova-scheduler nova-conductor
+    ```
+- Tạo **flavor** sử dụng disk **HDD** :
+    ```
+    # openstack flavor create --ram 1024 --disk 10 --vcpus 1 hdd.small
+    # openstack flavor set --property aggregate_instance_extra_specs:hdd=true hdd.small
+    ```
+- Tạo **flavor** sử dụng disk **SSD** :
+    ```
+    # openstack flavor create --ram 1024 --disk 10 --vcpus 1 ssd.small
+    # openstack flavor set --property aggregate_instance_extra_specs:ssd=true ssd.small
+    ```
+- Tạo 2 instance với các flavor trên :
+    ```
+    # openstack server create --image cirros --flavor hdd.small --nic net-id=cdaf9772-ad08-471d-a3b6-332a9a3bbaa6 VM-HDD
+    # openstack server create --image cirros --flavor ssd.small --nic net-id=cdaf9772-ad08-471d-a3b6-332a9a3bbaa6 VM-SSD
+    ```
+- Kiểm tra các instance đang thuộc **AZ**, **HA** nào :
+    ```
+    # openstack server show VM-HDD | grep AZ
+    | OS-EXT-AZ:availability_zone         | rack1                                                    |
+    ```
+    ```
+    # openstack server show VM-SSD | grep AZ
+    | OS-EXT-AZ:availability_zone         | rack2                                                    |
+    ```
+    > Theo kết quả, có thể thấy các instance đã được filter theo đúng **host aggregate** 
+### **3.2) `ComputeCapabilitiesFilter` Filter**
+- Kiểm tra RAM của 2 node compute :
+    
+    <img src=https://i.imgur.com/hMo4afZ.png>
+    
+    <img src=https://i.imgur.com/bOqW4Gu.png>
+> Thiết lập filter "Compute nào có `free_ram` &ge; `2600` mới được tạo instance" => Instance mới sẽ được tạo trên `compute2` :
+- Tạo **flavor** :
+    ```
+    # openstack flavor create --ram 1024 --vcpus 1 --disk 10 "Flavor-Test"
+    ```
+- Set properties chi **flavor** :
+    ```
+    # openstack flavor set Flavor-Test --property free_ram_mb=">= 2600"
+    # openstack flavor show Flavor-Test
+    ```
+    <img src=https://i.imgur.com/z3HZOpj.png>
+
+- Tạo instance mới :
+    ```
+    # openstack server create --flavor Flavor-Test --image cirros --nic net-id=cdaf9772-ad08-471d-a3b6-332a9a3bbaa6 VM-Test
+    ```
