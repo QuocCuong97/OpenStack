@@ -91,8 +91,14 @@
     <img src=https://i.imgur.com/DX2WkTr.png>
 
     <img src=https://i.imgur.com/ENriwDN.png>
+> Chú ý : để thực hiện ngược lại các tính toán của weight, cần cấu hình trong file `/etc/nova/nova.conf` :
+```
+ram_weight_multiplier = -1.0   # lựa chọn compute ít ram hơn
+cpu_weight_multiplier = -1.0   # lựa chọn compute ít cpu hơn
+disk_weight_multiplier = -1.0   # lựa chọn compute ít disk hơn
+```
 
-    > [Tham khảo thêm về Weight](https://docs.openstack.org/nova/train/admin/configuration/schedulers.html#weights)
+> [Tham khảo thêm về Weight](https://docs.openstack.org/nova/train/admin/configuration/schedulers.html#weights)
 
 ## **3) Lab nova-scheduler**
 ### **3.1) Host Aggregate Filter**
