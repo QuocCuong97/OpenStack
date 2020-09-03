@@ -31,12 +31,13 @@
     ```
     # openstack availability zone list
     ```
-    <img src=https://i.imgur.com/AkVO4Ex.png>
+    <img src=https://i.imgur.com/vXvNHlx.png>
 #### **1.5.2) Host Aggregate**
 - List các **Host Aggregate** :
     ```
     # openstack aggregate list
     ```
+    <img src=https://i.imgur.com/X0PerHC.png>
 ## **2) Nova-scheduler**
 - **Nova-scheduler** service xác định compute node nào sẽ thực hiện chạy instance.
 - **Scheduler** sử dụng ***filter scheduler*** để lập kế hoạch cho việc khởi tạo máy ảo. Trong ***filter scheduler*** hỗ trợ 2 cơ chế ***filtering*** và ***weighting*** để có thể xác định được node compute chạy máy ảo.
