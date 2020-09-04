@@ -61,3 +61,39 @@
 
         > Cấu hình đã đúng với Flavor sau khi resize
 ## **2) Resize instance boot từ volume**
+> Thực hiện resize instance `VM05` cấu hình RAM 1G, 1 core, 10GB disk volume thành :<br>
+    - Flavor-B : RAM 4G, 2 core
+    - Disk : 20GB
+- **B1 :** Tắt instance :
+    ```
+    # openstack server stop VM05
+    ```
+- **B2 :** Kiểm tra volume mà instance đang sử dụng :
+    ```
+    # openstack volume list | grep VM05
+    ```
+    <img src=https://i.imgur.com/fZQ4FIv.png>
+
+- **B3 :** Thực hiện resize disk :
+    ```
+    # openstack volume set --state available vlm_cirros
+    # openstack volume set vlm_cirros --size 20
+    ```
+    - Kiểm tra lại trạng thái volume :
+        ```
+        # openstack volume list
+        ```
+        <img src=https://i.imgur.com/fL5fiCl.png>
+
+- **B4 :** Khởi động instance :
+    ```
+    # openstack server start VM05
+    ```
+- **B4 :** Thực hiện resize Flavor :
+    ```
+    # openstack server resize --flavor Flavor-B VM05
+    ```
+    - Kiểm tra lại Flavor của instance :
+        ```
+        # openstack server list | grep VM05
+        ```
