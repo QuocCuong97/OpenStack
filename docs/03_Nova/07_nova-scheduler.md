@@ -74,9 +74,10 @@
     - `filter_scheduler.available_filters` : Xác định các lớp bộ lọc có sẵn cho **scheduler**. Thiết lập này có thể được sử dụng nhiều lần
     - `filter_scheduler.enabled_filters` : Trong các bộ lọc có sẵn, xác định những bộ lọc mà scheduler sử dụng trong mặc định.
 - Các giá trị mặc định trong `nova.conf` là :
-    ```
-    --filter_scheduler.available_filters=nova.scheduler.filters.all_filters
-    --filter_scheduler.enabled_filters=ComputeFilter,AvailabilityZoneFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,AggregateInstanceExtraSpecsFilter
+    ```ini
+    [filter_scheduler]
+    available_filters = nova.scheduler.filters.all_filters
+    enabled_filters = ComputeFilter,AvailabilityZoneFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter
     ```
 - Với cấu hình như trên thì tất cả các ***filter*** trong `nova.scheduler.filters` đều sẵn sàng và mặc định sẽ là `ComputeFilter`, `AvailabilityZoneFilter`, `ComputeCapabilitiesFilter`, `ImagePropertiesFilter`, `ServerGroupAntiAffinityFilter` và `ServerGroupAffinityFilter`, `AggregateInstanceExtraSpecsFilter` sẽ được sử dụng .
     > [Tham khảo thêm cấu hình Filtering](https://docs.openstack.org/nova/train/admin/configuration/schedulers.html)

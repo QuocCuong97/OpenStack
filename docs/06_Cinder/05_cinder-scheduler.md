@@ -68,3 +68,38 @@
         ```
         # openstack volume create --hint different_host="[Volume_A-UUID, Volume_B-UUID]" --size SIZE VOLUME_NAME
         ```
+## **5) Lab kiểm chứng**
+- Cài đặt sẵn Cinder Multibackend với 2 backend là **LVM** và **NFS** :
+    ```
+    # openstack volume service list
+    ```
+    <img src=https://i.imgur.com/DJ8utwT.png>
+### **5.1) Affinity policy**
+- **B1 :** Để sử dụng chức năng này, cần thêm filter `DifferentBackendFilter` :
+    
+    <img src=https://i.imgur.com/krzThZa.png>
+
+- **B2 :** Khởi động lại dịch vụ `cinder-scheduler` :
+    ```
+    # systemctl restart openstack-cinder-scheduler
+    ```
+- **B3 :** Kiểm tra sẵn một volume `vlm_cirros` :
+    ```
+    # openstack volume show vlm_cirros --fit-width
+    ```
+    <img src=https://i.imgur.com/FyOgF36.png>
+
+    > Ta thấy volume đang sử dụng trên backend LVM
+
+- **B4 :** Tạo 1 volume khác backend với volume trên :
+    ```
+    # openstack volume create --hint different_host=27271fc5-60c5-476d-b6c3-718ee79a2cc5 --size 10 new_volume
+    ```
+    > `27271fc5-60c5-476d-b6c3-718ee79a2cc5` là ID của volume `vlm_cirros`
+- **B5 :** Kiểm tra lại :
+    ```
+    # openstack volume show new_volume --fit-width
+    ```
+    <img src=https://i.imgur.com/jFF2Cqi.png>
+
+    > Ta thấy volume mới đã được tạo trên backend khác

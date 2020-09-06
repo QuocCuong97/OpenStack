@@ -72,7 +72,7 @@
     ```
     # openstack volume list | grep VM05
     ```
-    <img src=https://i.imgur.com/fZQ4FIv.png>
+    <img src=https://i.imgur.com/hvrUd6G.png>
 
 - **B3 :** Thực hiện resize disk :
     ```
@@ -83,12 +83,8 @@
         ```
         # openstack volume list
         ```
-        <img src=https://i.imgur.com/fL5fiCl.png>
+        <img src=https://i.imgur.com/S3BPtkV.png>
 
-- **B4 :** Khởi động instance :
-    ```
-    # openstack server start VM05
-    ```
 - **B4 :** Thực hiện resize Flavor :
     ```
     # openstack server resize --flavor Flavor-B VM05
@@ -97,3 +93,21 @@
         ```
         # openstack server list | grep VM05
         ```
+        <img src=https://i.imgur.com/GfIuvf1.png>
+- **B5 :** Khi instance xuất hiện trạng thái `VERIFY_RESIZE` như trên, thực hiện confirm resize :
+    ```
+    # openstack server resize confirm VM05
+    ```
+    hoặc hủy bỏ :
+    ```
+    # openstack server resize revert VM05
+    ```
+- **B6 :** Sau khi resize thành công, khởi động instance :
+    ```
+    # openstack server start VM05
+    ```
+    - Console và kiểm tra thông số cấu hình :
+        
+        <img src=https://i.imgur.com/TDWilZq.png>
+
+        > Kết quả cho thấy instance đã nhận đúng kích cỡ volume và số Vcpu của flavor

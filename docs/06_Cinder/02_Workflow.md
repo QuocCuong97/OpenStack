@@ -16,7 +16,7 @@
 <p align=center><img src=https://i.imgur.com/Q1vGk36.png></p>
 
 - Quá trình attach volume :
-    - Client yêu cầu attach volume thông qua Nova REST API (Client có thể sử dụng tiện ích CLI của python-novaclient)
+    - Client yêu cầu attach volume thông qua Nova REST API (Client có thể sử dụng tiện ích CLI của `python-novaclient`)
     - Nova-api thực hiện quá trình xác nhận yêu cầu và thông tin người dùng. Một khi đã được xác thực, gọi API Cinder để có được thông tin kết nối cho volume được xác định.
     - Cinder-api thực hiện quá trình xác nhận yêu cầu hợp lệ và thông tin người dùng hợp lệ . Một khi được xác nhận , một message sẽ được gửi đến người quản lý volume thông qua AMQP.
     - Cinder-volume tiến hành đọc message từ hàng đợi , gọi Cinder driver tương ứng với volume được gắn vào.
