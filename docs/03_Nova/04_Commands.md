@@ -13,7 +13,7 @@
         [--id <id>]
         [--ram <size-mb>]
         [--disk <size-gb>]
-        [--ephemeral-disk <size-gb>]
+        [--ephemeral <size-gb>]
         [--swap <size-mb>]
         [--vcpus <num-cpu>]
         [--rxtx-factor <factor>]
