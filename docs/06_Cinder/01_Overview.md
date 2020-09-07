@@ -50,7 +50,7 @@
     - Ephemeral disk hữu dụng trong trường hợp bạn không lo lắng về nhu cầu nhân đôi một máy ảo hoặc hủy một máy ảo và dữ liệu trong đó sẽ mất hết. Bạn vẫn có thể mount một volume trên một máy ảo được boot từ một ephemeral disk và đẩy bất kỳ data nào cần thiết để lưu lại trong volume.
     - Một số đặc tính :
         - Không sử dụng hết volume quota: Nếu bạn có nhiều instance quota, bạn có thể boot chúng từ ephemeral disk ngay cả khi không có nhiều volume quota
-        - Bị xóa khi vm bị xóa: Dữ liệu trong emphemeral disk sẽ bị mất khi xóa mấy ảo
+        - Bị xóa khi vm bị xóa: Dữ liệu trong emphemeral disk sẽ bị mất khi xóa máy ảo
 - **Volume Boot Disk** :
     - Volume là dạng lưu trữ bền vững hơn ephemeral disk và có thể dùng để boot như là một block device có thể mount được.
     - Volume boot disk hữu dụng khi bạn cần dupicate một vm hoặc backup chúng bằng cách snapshot, hoặc nếu bạn muốn dùng phương pháp lưu trữ đáng tin cậy hơn là ephemeral disk. Nếu dùng dạng này, cần có đủ quota cho các vm cần boot.
