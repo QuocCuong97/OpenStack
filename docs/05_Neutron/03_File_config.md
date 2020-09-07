@@ -92,3 +92,64 @@
         - `firewall_driver` : driver cho security groups firewall trong l2 agent
         - `enable_ipset` : Tăng tốc các security groups
 ## **3) File `/etc/neutron/plugins/ml2/linuxbridge_agent.ini`**
+- Section `[linux_bridge]` :
+    ```ini
+    [linux_bridge]
+    ...
+    physical_interface_mappings =
+    ...
+    ```
+    - Trong đó :
+        -` physical_interface_mappings = <physical_network>:<physical_interface>` : các mạng vật lý có ánh xạ với các interface
+- Section `[vxlan]` :
+    ```ini
+    [vxlan]
+    ...
+    enable_vxlan = True
+    local_ip = 10.10.230.10
+    ...
+    ```
+    - Trong đó :
+        - `enable_vxlan` : bật mode vxlan
+        - `local_ip` : địa chỉ ip của overlay (tunnel) network endpoint
+- Section `[securitygroup]` :
+    ```ini
+    [securitygroup]
+    ...
+    enable_security_group = True
+    firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
+    ...
+    ```
+    - Trong đó :
+        - `enable_security_group` : kích hoạt security group API
+        - `firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver` : driver cho security groups firewall trong l2 agent
+## **4) File `/etc/neutron/metadata_agent.ini` (compute)**
+- Section `[DEFAULT]` :
+    ```ini
+    [DEFAULT]
+    nova_metadata_host = 10.10.230.10
+    metadata_proxy_shared_secret = Password123
+    ...
+    ```
+    - Trong đó :
+        - `nova_metadata_host` : Địa chỉ IP hoặc DNS name của Nova metadata
+        - `metadata_proxy_shared_secret` : Secret key để xác minh. Nó cần khớp với config key password của Nova trong section `[neutron]` của Nova
+## **5) File `/etc/neutron/dhcp_agent.ini` (compute)**
+- Section `[DEFAULT]` :
+    ```ini
+    [DEFAULT]
+    interface_driver = neutron.agent.linux.interface.BridgeInterfaceDriver
+    enable_isolated_metadata = True
+    dhcp_driver = neutron.agent.linux.dhcp.Dnsmasq
+    force_metadata = True
+    ```
+    - Trong đó :
+        - `interface_driver` : Driver được sử dụng để quản lý virtual interface
+        - `enable_isolated_metadata` : Máy chủ DHCP có thể hỗ trợ cung cấp metadata cho các mạng isolated. Tùy chọn này không có tác dụng nào khi `force_metadata` được đặt giá trị là `True`
+        - `dhcp_driver` : Driver sử dụng để quản lý DHCP server
+        - `force_metadata` : Đặt giá trị này sẽ buộc DHCP server phải kết nối tới các host routes cụ thể vào DHCP request. Nếu tùy chọn này được đặt, thì metadata service sẽ được kích hoạt cho tất cả các mạng.
+------------------------
+Tham khảo
+- https://docs.openstack.org/neutron/train/configuration/config.html
+- https://docs.openstack.org/neutron/train/configuration/ml2-conf.html
+- https://docs.openstack.org/neutron/train/configuration/linuxbridge-agent.html
