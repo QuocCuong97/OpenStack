@@ -916,7 +916,7 @@
             'enable_fip_topology_check': False,
             'enable_ha_router': False,
             'enable_quotas': False,
-            'enable_router': False,
+            'enable_router': True,
             ...
         }
         ```
