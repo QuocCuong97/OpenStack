@@ -731,7 +731,7 @@
 - **B6 :** Cấu hình file `/etc/neutron/neutron.conf` :
     ```
     # crudini --set /etc/neutron/neutron.conf DEFAULT core_plugin ml2
-    # crudini --set /etc/neutron/neutron.conf DEFAULT service_plugins
+    # crudini --set /etc/neutron/neutron.conf DEFAULT service_plugins router
     # crudini --set /etc/neutron/neutron.conf DEFAULT transport_url rabbit://openstack:Password123@controller
     # crudini --set /etc/neutron/neutron.conf DEFAULT auth_strategy keystone
     # crudini --set /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_status_changes True
