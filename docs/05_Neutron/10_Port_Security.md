@@ -1,8 +1,11 @@
 # Port Security
 ## **1) Giới thiệu**
-- Mặc định, **neutron** sẽ kích hoạt **port security** đi kèm mỗi port tạo ra trong **OpenStack** :
+- Mặc định, **neutron** sẽ kích hoạt **port security** đi kèm mỗi port được tạo ra trong **OpenStack** . Các rule sau sẽ được kích hoạt theo mặc định :
+    - **Security Group** :
 
-
+- All incoming and outgoing traffic is blocked for ports connected to virtual machine instances. (Unless a ‘Security Group’ has been applied.)
+- Only traffic originating from the IP / MAC address pair known to OpenStack for a particular port, will be allowed on the network.
+- Pass through and promiscuous mode will be blocked.
 
 
 By default Neutron enforces the following port security i.e. security on a per-port basis.
