@@ -94,69 +94,7 @@
     ```
     # openstack subnet delete <subnet_name|subnet_ID>
     ```
-## **2) Security group**
-#### **List các security group**
-- Cú pháp :
-    ```
-    # openstack security group list
-    ```
-    <img src=https://i.imgur.com/QHz9QlH.png>
-
-#### **Tạo security group**
-- Cú pháp :
-    ```
-    # openstack security group rule create 
-        [--remote-ip <ip-address> | --remote-group <group>]
-        [--dst-port <port-range>]
-        [--protocol <protocol>]
-        [--description <description>]
-        [--icmp-type <icmp-type>]
-        [--icmp-code <icmp-code>]
-        [--ingress | --egress]
-        [--ethertype <ethertype>]
-        [--project <project>]
-        [--project-domain <project-domain>]
-        <sec_group_name|sec_group_ID>
-    ```
-- **VD :** Tạo 1 security group cho phép giao thức SSH:
-    ```
-    # openstack security group rule create --protocol ssh --ingress default
-    ```
-#### **Hiển thị các rule đang có của một security group**
-- Cú pháp :
-    ```
-    # openstack security group rule list <sec_group_name|sec_group_ID>
-    ```
-    - **VD :**
-        ```
-        # openstack security group rule list caea3729-3a73-4b94-b60e-3593ab257f80
-        ```
-        <img src=https://i.imgur.com/IWlf3jZ.png>
-
-#### **Xóa 1 security group**
-- Cú pháp :
-    ```
-    # openstack security group delete <sec_group_name|sec_group_ID>
-    ```
-#### **Gán security group vào instance**
-- Cú pháp :
-    ```
-    # nova add-secgroup <instance_name|instance_ID> <sec_group_name|sec_group_ID>
-    ```
-- **VD :**
-    ```
-    # nova add-secgroup VM05 caea3729-3a73-4b94-b60e-3593ab257f80
-    ```
-#### **Gỡ security group khỏi instance**
-- Cú pháp :
-    ```
-    # nova remove-secgroup <instance_name|instance_ID> <sec_group_name|sec_group_ID>
-    ```
-- **VD :**
-    ```
-    # nova remove-secgroup VM05 caea3729-3a73-4b94-b60e-3593ab257f80
-    ```
-## **3) Cấu hình IP cho instance**
+## **2) Cấu hình IP cho instance**
 #### **List các port đang có trên instance**
 - Cú pháp :
     ```
@@ -217,7 +155,7 @@
 
     > Instance có thể ping đến các IP khác
 
-## **4) Router**
+## **3) Cấu hình Router**
 #### **Cấu hình ban đầu**
 > Để cấu hình tạo router cần phải cấu hình plugin `router` và `l3-agent`
 - **B1 :** Cấu hình plugin :
