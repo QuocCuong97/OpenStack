@@ -8,9 +8,9 @@
     > Nếu chưa thêm bất kỳ **namespace** nào, output sẽ trống. **Namespace** mặc định thì không được tính vào output của lệnh `ip netns list`
 
 - Các namespace hiển thị dưới dạng
-    - `qdhcp-*`
-    - `qrouter-*`
-    - `qlbaas-*`
+    - `qdhcp-*` (DHCP namespace)
+    - `qrouter-*` (Router namespace)
+    - `qlbaas-*` (Load Balancing namespace)
 - **VD :**
     - Khi cài đặt plugin `router` :
 
