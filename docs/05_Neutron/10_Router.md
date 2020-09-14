@@ -10,7 +10,7 @@
     - Mặc định, Neutron router sẽ sử dụng **SNAT - *Source Network Address Translation*** cho các traffic ra ngoài từ các mạng tenant. Có nghĩa, tất cả các traffic đi ra từ router, router sẽ thay đổi địa chỉ nguồn của chúng thành địa chỉ nguồn của external interface. Điều này đảm bảo lượng traffic trả về sẽ về đúng cho router, sau đó các địa chỉ đích của traffic sẽ được thay đổi về đúng như cũ :
         <p align=center><img src=https://i.imgur.com/6GA95zD.png width=60%></p>
 - **Inbound traffic**
-    - Khi sử dụng **SNAT**, các inbound traffic (kết nối trả về) sẽ không thể có cách quay về đúng instance . Một floating IP là địa chỉ được sử dụng để cung cấp kết nối static NAT 1:1 map tới 1 IP cố định. Floating IP sẽ cung cấp 1 kết nối outbound và inbound duy nhất, cho phép traffic trả về đúng cho instance :
+    - Khi sử dụng **SNAT**, các inbound traffic (kết nối trả về) sẽ không thể có cách quay về đúng instance . Một **floating IP** là địa chỉ được sử dụng để cung cấp kết nối static NAT `1:1` map tới 1 IP cố định. Floating IP sẽ cung cấp 1 kết nối outbound và inbound duy nhất, cho phép traffic trả về đúng cho instance :
         <p align=center><img src=https://i.imgur.com/ehOtFEC.png width=60%></p>
 
 ## **2) Các loại router trong Neutron**
