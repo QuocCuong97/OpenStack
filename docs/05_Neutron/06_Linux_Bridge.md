@@ -78,5 +78,85 @@
         - Các rules của Security group (14) trên provider bridge sẽ xử lý firewall và theo dõi kết nối của packet
         - Instance port tương ứngs trên provider bridge `(15)` sẽ forward packet tới interface của instance 2 `(16)` thông qua `veth` pair .
 ## **3) Self-service network**
+
 ### **3.1) Kiến trúc và thành phần**
 ### **3.2) Network traffic** 
+- Trong self-service các instance sẽ sử dụng IPv4 Private . Để truy cập được interface , networking service sẽ làm nhiệm vụ SNAT ( Source Network Addresss Translation ) để truy cập ra mạng external . . Để từ các mạng có thể truy cập , các instance yêu cầu có một floating IP . Networking service thực hiện DNAT ( desnation network address translation ) từ IP Floating sang IP self-service
+#### **3.2.1) Luồng Bắc-Nam 1 (North - South 1)** : instance có địa chỉ IP cố định
+- Với các instance kèm IP v4 Floating, trên network node sẽ thực hiện SNAT để self-service có thể giao tiếp với mạng ngoài.
+    - Instance ở node Compute1 và sử dụng mạng self-service 1
+    - Instance gửi packet tới host ngoài internet
+
+    <p align=center><img src=https://i.imgur.com/FCOZP3S.png></p>
+
+- Đường đi gói tin :
+    - Trên node Compute :
+        - Instance interface (1) forward packet tới port tương ứng trên self-service bridge (2) thông qua veth pair
+        - Các rules của Security group (3) trên self-service bridge sẽ xử lý firewall và theo dõi kết nối của packet
+        - Self-service bridge forward packet tới VXLAN interface trên bridge (4) kèm VNI
+        - Physical interface (5) cho phép mạng VXLAN interface forward packet tới node Network thông qua overlay network (6)
+    - Trên node network :
+        - Physical network (7) nhận packet từ Overlay network VXLAN interface sau đó forward tới self-service bridge port (8)
+        - Self-service bridge router port (9) forward packet tới self-service network interface (10) trong rourter namespace
+        - Đối với IPv4, router thực hiện SNAT trên packet thay đổi IP nguồn thành địa chỉ IP của router trên provider network và gửi nó đến địa chỉ IP gateway của provider network thông qua gateway interface trên provider network (11)
+        - Router forward packet tới provider bridge router port (12)
+        - VLAN sub-interface port (13) trên provider bridge sẽ forward packet tới physical network interface (14)
+        - Provider physical network interface (14) gán tag VLAN 101 vào packet và forward nó ra internet thông quan physical network infrastructure (15).
+#### **3.2.2) Luồng Bắc-Nam 2 (North - South 2)** : Instance with a floating IPv4 address
+- Instance nằm trên node Compute1 và sử dụng self-service network 1
+- Máy chủ trên internet gửi một packet tới instance
+    <p align=center><img src=https://i.imgur.com/PNug8Et.png></p>
+- Đường đi gói tin :
+    - Trên node network :
+        - Physical network infrastructure (1) forward packet tới provider physical network interface (2).
+        - provider physical network interface(3) gỡ tag VLAN 101 và forward packet tới VLAN sub-interface (4) trên provider bridge
+        - Provider bridge forward packet tới port gateway của self-service router trên provider network (5)
+            - Đối với IPv4, router thực hiện DNAT trên packet thay đổi địa chỉ IP đích thành IP của instancetreen self-service network và gửi nó tới địa chỉ IP gateway trên self-service thông qua self-service interface (6).
+        - Router forward packet tới self-service bridge router port (7)
+        - self-service bridge forwards packet tới VXLAN interface (8) và kèm theo VNI 101
+        - physical interface (9) forward pacekt tới node network thông qua overlay network (10).
+    - Trên node Compute :
+        - Physical interface (11) forward packet tới VXLAN interface (12) để mở packet
+        - Các security group rules (13) trên self-service bridge xử lý firewall và theo dõi kết nối của packet
+        - self-service bridge instance port (14) forwards packet tới interface của instance (15) thông qua veth
+#### **3.2.3) Luồng Đông-Tây 1 (East-West 1)** : instance trên cùng một node
+- Instance 1 nằm trên node Compute1 và sử dụng mạng self-service network 1
+- Instance 2 nằm trên node Compute2 và sử dụng mạng self-service network 1
+- Instance 1 gửi packet tới Instance 2
+    <p align=center><img src=https://i.imgur.com/HZc17Qd.png></p>
+- Đường đi gói tin :
+    - Trên node Compute1 :
+        - Instance interface (1) chuyển packet đến self-service port tương ứng (2)
+        - Các security group rules (3) trên self-service bridge xử lý firewall và theo dõi kết nối của packet
+        - self-service bridge forward packet tới VXLAN interface (4) kèm theo VNI 101
+        - physical interface (5) forward packet tới node Compute2 thông qua overlay network (6)
+    - Trên node Compute2 :
+        - physical interface (7) forward packet tới VXLAN interface (8) để mở packet
+        - Security group rules (9) của self-service bridge sẽ xử lý với firewall và theo dõi kết nối của packet
+        - self-service bridge instance port (10) forward packet tới interface của instance (11) thông qua veth
+#### **3.2.4) Luồng Đông-Tây 2 (East-West 2)** : instance trên 2 mạng khác nhau
+- Instance1 nằm trên node Compute1 và sử dụng mạng self-service1
+- Instance2 nằm trên node Compute1 và sử dụng mạng self-service2
+- Instance1 gửi packet tới Instance2
+    <p align=center><img src=https://i.imgur.com/XKfTjFz.png></p>
+- Đường đi gói tin :
+    - Trên node Compute :
+        - Instance interface (1) chuyển packet đến self-service port tương ứng (2)
+        - Các security group rules (3) trên self-service bridge xử lý firewall và theo dõi kết nối của packet
+        - self-service bridge forward packet tới VXLAN interface (4) kèm theo VNI 101
+        - Physical interface (5) cho phép mạng VXLAN interface forward packet tới node Network thông qua overlay network (6)
+    - Trên node network :
+        - physical interface (7) forward packet tới VXLAN interface (8) để mở packet
+        - self-service bridge router port (9) forwards packet tới self-service network 1 interface (10) trên router namespace.
+        - Router gửi packet tới IP tiếp theo, thường là IP gatewa của self-service network2 , thông qua self-service network2 interface (11)
+        - Router forward pacekt tới self-service network 2 bridge router port (12).
+        - self-service network 2 bridge forward packet tới VXLAN interface (13) để mở pacekt sử dụng VNI 102
+        - physical network interface (14) của VXLAN interface gửi packet tới node compute thông qua overlay network (15)
+    - Trên node Compute :
+        - physical interface (16) gửi packet tới VXLAN interface (17) để mở packet
+        - Security group rules (18) trên self-service bridge xử lý với firewall và theo dõi kết nối của packet
+        - self-service bridge instance port (19) forward paceket tới interface của instance2 (20) thông qua veth pair.
+------------
+Tham khảo
+- https://docs.openstack.org/neutron/train/admin/deploy-lb-provider.html
+- https://docs.openstack.org/neutron/train/admin/deploy-lb-selfservice.html

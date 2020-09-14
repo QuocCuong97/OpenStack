@@ -1,4 +1,5 @@
 # Namespace
+## **1) Giới thiệu**
 - **OpenStack** cung cấp môi trường **multitenancy**, cung cấp cho user khả năng tạo vả quản lý các compute và tài nguyên network. **Neutron** hỗ trợ mỗi **tenant** (hay **project**) có thể có nhiều **private network**, **router**, **firewall**, **load balancer** và các tài nguyên mạng khác. Khả năng cô lập các object này là dựa vào **namespace** .
 - Một **namespace** được định nghĩa là một bản copy logic của 1 hệ thống mạng với **route** riêng, **firewall rule** riêng, interface riêng . Mỗi khi sử dụng một plugin hay driver open-source, các **router**, **network** hay **load balancer** được tạo ra bởi user đều đại diện cho 1 **network namespace** . Khi **network namespace** được bật, **Neutron** có thể cô lập môi trường DHCP và dịch vụ routing tới các mạng khác. Các dịch vụ này cho phép user tạo nên các mạng overlap với các user khác trong các project khác và thậm chí là các mạng khác trên cùng project
 - Để xem các namespace đang được sử dụng, sử dụng lệnh :
@@ -21,3 +22,5 @@
         <img src=https://i.imgur.com/pYRDlRR.png>
 
         <img src=https://i.imgur.com/8Q81RzM.png>
+
+## **2) Thực thi trong namespace**
