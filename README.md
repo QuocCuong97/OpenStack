@@ -1,2 +1,10 @@
 # OpenStack
-Ghi chép về OpenStack
+### [0. Tổng quan về OpenStack](https://github.com/QuocCuong97/OpenStack/tree/master/docs/00_Overview)
+### [1. Project Keystone](https://github.com/QuocCuong97/OpenStack/tree/master/docs/01_Keystone)
+### [2. Project Glance](https://github.com/QuocCuong97/OpenStack/tree/master/docs/02_Glance)
+### [3. Project Nova](https://github.com/QuocCuong97/OpenStack/tree/master/docs/03_Nova)
+### [4. Project Placement](https://github.com/QuocCuong97/OpenStack/tree/master/docs/04_Placement)
+### [5. Project Neutron](https://github.com/QuocCuong97/OpenStack/tree/master/docs/05_Neutron)
+### [6. Project Cinder](https://github.com/QuocCuong97/OpenStack/tree/master/docs/06_Cinder)
+### [7. Project Horizon](https://github.com/QuocCuong97/OpenStack/tree/master/docs/07_Horizon)
+### [8. Cloud-init](https://github.com/QuocCuong97/OpenStack/tree/master/docs/08_Cloud-init)
