@@ -64,3 +64,5 @@
         - Ít được support : **LinuxBridge** sẽ ít cộng đồng hỗ trợ hơn **OpenvSwitch**
 ### **2.3) Các lệnh thường dùng trong OpenvSwitch**
 ### **2.4) Triển khai OpenvSwitch**
+#### **2.4.1) Trên node controller**
+- **B1 :**
