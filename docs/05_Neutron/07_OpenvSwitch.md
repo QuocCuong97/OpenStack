@@ -65,4 +65,14 @@
 ### **2.3) Các lệnh thường dùng trong OpenvSwitch**
 ### **2.4) Triển khai OpenvSwitch**
 #### **2.4.1) Trên node controller**
-- **B1 :**
+- **B1 :** Cài đặt **Neutron** và **OpenvSwitch** :
+    ```
+    # yum install -y openstack-neutron openstack-neutron-ml2 openstack-neutron-openvswitch ebtables
+    ```
+- **B2 :** Sao lưu file cấu hình của **OpenvSwitch** :
+    ```
+    # cp /etc/neutron/plugins/ml2/openvswitch_agent.ini /etc/neutron/plugins/ml2/openvswitch_agent.ini.bak
+    ```
+- **B3 :** Chỉnh sửa file cấu hình `neutron.conf` :
+    ```
+    # 
