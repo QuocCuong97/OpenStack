@@ -13,10 +13,12 @@
 
     - Trong hình, 3 instance kết nối vào một LinuxBridge tên `brqXXXX` thông qua các tap interface riêng biệt. Khi instance được tạo ra trong mạng `VLAN100`, một interface ảo tên là `eth1.100` sẽ tự đọng được tạo ra và kết nối tới **bridge**. Interface `eth1.100` sẽ link đến `eth1`. Khi traffic từ instance đi qua LinuxBridge và đi ra ngoài physical interface , interface `eth1.100` sẽ đánh tag cho traffic đo là VLAN 100 và gỡ nó trên `eth1`. Traffic đi vào ngược lại sẽ được `eth1.100` bỏ tag và forward đúng đến instance thông qua bridge
     - Khi sử dụng lệnh `brctl show` sẽ được kết quả như sau :
+
         <img src=https://i.imgur.com/0SMch6q.png>
         
         >Bridge ID sẽ được tự động gen ra dựa vào parent NIC của interface VLAN (ở đây là `eth1`)
 - Trường hợp nhiều VLAN :
+
     <img src=https://i.imgur.com/HZMpUam.png>
 
 ### **Flat**
@@ -27,6 +29,7 @@
     - `eth1` kết nối tới bridge tên là `brqXXXX` cùng với 3 tap interface đại diện cho 3 instance. Linux kernel sẽ không thực hiện gán tag VLAN .
 
     - Khi thực hiện lệnh `brctl show` trên compute node :
+    
         <img src=https://i.imgur.com/Glk2WLL.png>
 
 - Khi nhiều mạng **flat** được tạo ra, một physical interface sẽ phải gắn vào nó
