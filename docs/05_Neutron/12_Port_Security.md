@@ -1,8 +1,8 @@
 # Port Security
 ## **1) Giới thiệu**
 - Mặc định, **neutron** sẽ kích hoạt **port security** đi kèm mỗi port được tạo ra trong **OpenStack** . Các rule sau sẽ được kích hoạt theo mặc định :
-    - Tất cả các traffic đi vào và đi ra sẽ bị block bởi port khi kết nối với instance (khi có **Security group**)
-    - Chỉ traffic bắt nguồn từ cặp địa chỉ IP/MAC được coi như đặc thù từ **OpenStack** (như IP của compute, hoặc các IP đã được allow), sẽ được allow trên network
+    - Tất cả các traffic đi vào và đi ra sẽ bị block bởi port khi kết nối với instance 
+    - Chỉ traffic bắt nguồn từ cặp địa chỉ IP/MAC mặc định (như IP của compute, hoặc các IP gốc của port), sẽ được allow trên network
 
         <p align=center><img src=https://i.imgur.com/jelFYer.png></p>
 
@@ -50,6 +50,63 @@
     ```
     # openstack set port <port_ID|port_name> --no-allowed-address
     ```
+## **3) Lab kiểm chứng**
+- **B1 :** Kiểm tra các cặp default IP/MAC :
+    ```
+    # openstack port list
+    ```
+    <img src=https://i.imgur.com/Ksrilds.png>
+    
+    > Đây là cặp IP/MAC mặc định được sử dụng khi tạo port. **Port security** sẽ ngăn chặn việc thay đổi cặp IP/MAC này
+- **B2 :** Kiểm tra **port security** đã được bật trên port :
+    ```
+    # openstack port show 35147cdc-1a22-4b7b-b136-7d3e8bead504 | grep 'port_security_enabled'
+    ```
+    <img src=https://i.imgur.com/uxgz1XH.png>
+
+- **B3 :** Thực hiện ping tới gateway trên instance :
+    ```
+    # ping 192.168.1.1
+    ```
+    <img src=https://i.imgur.com/tTVMhW8.png>
+
+- **B4 :** Thực hiện thay đổi thử IP trên instance :
+    ```
+    # ifconfig eth0 192.168.1.200/24
+    # route add default gw 192.168.1.1 eth0
+    ```
+    <img src=https://i.imgur.com/30zhc6h.png>
+
+- **B5 :** Trên instance, thực hiện ping lại đến gateway :
+    ```
+    # ping 192.168.1.1
+    ```
+    <img src=https://i.imgur.com/rjYhxIS.png>
+
+    > Traffic đã hoàn toàn bị chặn bởi **port security** 
+- **B6 :** Tắt port security trên port :
+    ```
+    # openstack port set 35147cdc-1a22-4b7b-b136-7d3e8bead504 --disable-port-security
+    ```
+    - Ngay lập tức, các traffic trở lại bình thường trên instance :
+
+        <img src=https://i.imgur.com/Fxb4wI5.png>
+
+> Lưu ý :
+- **Port security** được thực hiện như trên là do rule trong **Iptable**. Các rule này được sắp xếp từ trước nhằm tránh việc bị tấn công **DHCP Snooping** hay giả mạo địa chỉ MAC trong mạng :
+    - Kiểm tra **iptables** (thực hiện trên node chứa instance) :
+        ```
+        # iptables -L
+        ```
+        <img src=https://i.imgur.com/dJ8nKLu.png>
+        
+    - Xem chi tiết các rule bằng cách sử dụng :
+        ```
+        # iptables-save
+        ```
+        <img src=https://i.imgur.com/c6sbKyi.png>
+    
+
 --------------------
 Tham khảo
 - https://superuser.openstack.org/articles/managing-port-level-security-openstack/

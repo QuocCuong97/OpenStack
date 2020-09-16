@@ -98,7 +98,63 @@
     ```
     # openstack volume set centos7-volume --size 12
     ```
-## **2) Snapshot volume**
+## **2) Volume type**
+#### **List các volume type**
+- Cú pháp :
+    ```
+    # openstack volume type list
+    ```
+    <img src=https://i.imgur.com/qeUugCx.png>
+
+#### **Tạo mới volume type**
+- Cú pháp :
+    ```
+    # openstack volume type create <volume_type_name>
+    # openstack volume type set <volume_type_name> --property volume_backend_name=<volume_backend_name>
+    ```
+    > Trong đó `<volume_backend_name>` là option `volume_backend_name` khi cấu hình backend trong file `/etc/cinder/cinder.conf`
+- **VD :** Tạo volume type `lvm1` :
+    - Cấu hình `volume_backend_name` trong file `cinder.conf` :
+        <img src=https://i.imgur.com/JHfAS9A.png>
+
+    - Tạo volume type `lvm1` :
+        ```
+        # openstack volume type create lvm1
+        ```
+        <img src=https://i.imgur.com/EGVmp0q.png>
+
+    - Gán backend cho volume type vừa tạo :
+        ```
+        # openstack volume type set lvm1 --property volume_backend_name=lvm1
+        ```
+        > `volume_type_name` và `volume_backend_name` không cần thiết phải đặt giống nhau 
+    - Kiểm tra lại list các volume type :
+        ```
+        # openstack volume type list
+        ```
+        <img src=https://i.imgur.com/qeUugCx.png>
+
+    - Tạo mới volume với volume type `lvm1` :
+        ```
+        # openstack volume create --size 10 --type lvm1 test
+        ```
+        <img src=https://i.imgur.com/ZAwCUYg.png>
+
+#### **Xóa volume type**
+- Cú pháp :
+    ```
+    # openstack volume type delete <volume_type_name>
+    ```
+> ### **Chú ý :**
+- Mặc định khi tạo volume backend đầu tiên mà không cấu hình volume type thì **cinder** sẽ set volume type của nó là `__DEFAULT__`. Các volume được tạo ra nếu không chỉ định `--type` thì sẽ sử dụng backend này .
+- Để set chính xác volume type mặc định cho **cinder**, chỉnh sửa `default_volume_type` trong file cấu hình `/etc/cinder/cinder.conf` :
+    <img src=https://i.imgur.com/nE4UPTD.png>
+    - Sau khi thay đổi cần restart `cinder-api` :
+        ```
+        # systemctl restart openstack-cinder-api
+        ```
+    - Volume tiếp theo khi tạo ra nếu không set `--type` thì sẽ sử dụng mặc định là `nfs`
+## **3) Snapshot volume**
 #### **Tạo volume snapshot**
 - Cú pháp :
     ```

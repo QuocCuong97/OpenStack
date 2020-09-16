@@ -44,3 +44,10 @@
     # bridge fdb show
     ```
     <img src=https://i.imgur.com/KzIbC6E.png>
+### **Local**
+- Khi tạo một local network trong **Neutron**, hoàn toàn không thể gán cho nó một VLAN ID hay 1 physical interface . **LinuxBridge** sẽ tạo ra một bridge và chỉ kết nối tap interface của instance với bridge. Instance ở trong cùng một mạng local sẽ kết nối với cùng một **bridge** và có thể giao tiếp thoải mái với nhau . Bởi vì không có physical hay VLAN interface kết nối đến bridge, traffic giữa các instance sẽ bị giới hạn trong host chứa chúng .
+
+    <img src=https://i.imgur.com/gK2iqgp.png>
+
+    - Trong hình, 2 mạng local được tạo ra sẽ 2 bridge riêng: `brqXXXX` và `brqYYYY`. Instance kết nối tới cùng 1 bridge có thể giao tiếp được với nhau nhưng không thể giao tiếp ở ngoài bridge. Không có cơ chế nào cho phép traffic giữa các instance nối đến các bridge khi sử dụng mạng local
+## **2) OpenvSwitch**
