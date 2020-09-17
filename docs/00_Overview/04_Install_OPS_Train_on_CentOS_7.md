@@ -33,10 +33,6 @@
     # sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
     # systemctl disable firewalld
     # systemctl stop firewalld
-    # systemctl stop NetworkManager
-    # systemctl disable NetworkManager
-    # systemctl enable network
-    # systemctl start network
     # reboot
     ```
 ### **2) Cài đặt OpenStack**
@@ -862,7 +858,7 @@
     ```
 - **B7 :** Khai báo trong file `/etc/neutron/metadata_agent.ini`
     ```
-    # crudini --set /etc/neutron/metadata_agent.ini DEFAULT nova_metadata_host 10.10.230.10
+    # crudini --set /etc/neutron/metadata_agent.ini DEFAULT nova_metadata_host controller
     # crudini --set /etc/neutron/metadata_agent.ini DEFAULT metadata_proxy_shared_secret Password123
     ```
 - **B8 :** Khai báo cho file `/etc/neutron/dhcp_agent.ini` :

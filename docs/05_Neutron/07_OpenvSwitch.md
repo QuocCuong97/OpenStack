@@ -75,4 +75,153 @@
     ```
 - **B3 :** Chỉnh sửa file cấu hình `neutron.conf` :
     ```
-    # 
+    # crudini --set /etc/neutron/neutron.conf DEFAULT core_plugin ml2
+    # crudini --set /etc/neutron/neutron.conf DEFAULT service_plugins router
+    # crudini --set /etc/neutron/neutron.conf DEFAULT allow_overlapping_ips True
+    # crudini --set /etc/neutron/neutron.conf DEFAULT transport_url rabbit://openstack:Password123@controller
+    # crudini --set /etc/neutron/neutron.conf DEFAULT auth_strategy keystone
+    # crudini --set /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_status_changes True
+    # crudini --set /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_data_changes True
+    # crudini --set /etc/neutron/neutron.conf DEFAULT dhcp_agents_per_network 2
+    # crudini --set /etc/neutron/neutron.conf database connection mysql+pymysql://neutron:Password123@controller/neutron
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken www_authenticate_uri http://controller:5000
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_url http://controller:5000
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken memcached_servers controller:11211
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_type password
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken project_domain_name default
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken user_domain_name default
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken project_name service
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken username neutron
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken password Password123
+    # crudini --set /etc/neutron/neutron.conf nova auth_url http://controller:5000
+    # crudini --set /etc/neutron/neutron.conf nova auth_type password
+    # crudini --set /etc/neutron/neutron.conf nova project_domain_name default
+    # crudini --set /etc/neutron/neutron.conf nova user_domain_name default
+    # crudini --set /etc/neutron/neutron.conf nova region_name RegionOne
+    # crudini --set /etc/neutron/neutron.conf nova project_name service
+    # crudini --set /etc/neutron/neutron.conf nova username nova
+    # crudini --set /etc/neutron/neutron.conf nova password Password123
+    # crudini --set /etc/neutron/neutron.conf oslo_concurrency lock_path /var/lib/neutron/tmp
+    ```
+- **B4 :** Sửa file cấu hình `/etc/neutron/plugins/ml2/ml2_conf.ini` :
+    ```
+    # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2 type_drivers flat,vlan,vxlan
+    # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2 tenant_network_types vxlan
+    # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2 mechanism_drivers openvswitch,l2population
+    # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2 extension_drivers port_security
+    # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2_type_flat flat_networks provider
+    # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2_type_vxlan vni_ranges 1:1000
+    # crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini securitygroup enable_ipset True
+    ```
+- **B5 :** Khởi động dịch vụ **OvS** :
+    ```
+    # systemctl enable openvswitch
+    # systemctl start openvswitch
+    ```
+- **B7 :** Tạo 1 bridge `br-provider` :
+    ```
+    # ovs-vsctl add-br br-provider
+    ```
+- **B8 :** Thêm provider interface vào bridge :
+    ```
+    # ovs-vsctl add-port br-provider eth0
+    ```
+- **B9 :** Sửa file cấu hình `openvswitch_agent.ini` :
+    ```
+    # crudini --set /etc/neutron/plugins/ml2/openvswitch_agent.ini ovs bridge_mappings provider:br-provider
+    # crudini --set /etc/neutron/plugins/ml2/openvswitch_agent.ini ovs local_ip $(ip addr show dev eth2 scope global | grep "inet " | sed -e 's#.*inet ##g' -e 's#/.*##g')
+    # crudini --set /etc/neutron/plugins/ml2/openvswitch_agent.ini securitygroup firewall_driver iptables_hybrid
+    # crudini --set /etc/neutron/plugins/ml2/openvswitch_agent.ini agent tunnel_types vxlan
+    # crudini --set /etc/neutron/plugins/ml2/openvswitch_agent.ini agent l2_population True
+    ```
+- **B10 :** Sửa file cấu hình `l3_agent.ini` :
+    ```
+    # crudini --set /etc/neutron/l3_agent.ini DEFAULT interface_driver openvswitch
+    ```
+- **B5 :** Thiết lập database :
+    ```
+    # su -s /bin/sh -c "neutron-db-manage --config-file /etc/neutron/neutron.conf \
+    --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head" neutron
+    ```
+- **B6 :** Khởi động dịch vụ neutron :
+    ```
+    # systemctl enable neutron-server neutron-openvswitch-agent neutron-metadata-agent neutron-l3-agent
+    # systemctl start neutron-server neutron-openvswitch-agent neutron-metadata-agent neutron-l3-agent
+    ```
+- **B7 :** Kiểm tra lại trạng thái dịch vụ :
+    ```
+    # openstack network agent list
+    ```
+### **2.4.2) Trên node compute**
+- Cài đặt **Neutron** và **OpenvSwitch** :
+    ```
+    # yum install -y openstack-neutron openstack-neutron-ml2 openstack-neutron-linuxbridge ebtables ipset
+    ```
+- **B2 :** Sao lưu file cấu hình của **OpenvSwitch** :
+    ```
+    # cp /etc/neutron/plugins/ml2/openvswitch_agent.ini /etc/neutron/plugins/ml2/openvswitch_agent.ini.bak
+    ```
+- **B2 :** Chỉnh sửa file cấu hình `/etc/neutron/neutron.conf` :
+    ```
+    # crudini --set /etc/neutron/neutron.conf DEFAULT auth_strategy keystone
+    # crudini --set /etc/neutron/neutron.conf DEFAULT core_plugin ml2
+    # crudini --set /etc/neutron/neutron.conf DEFAULT transport_url rabbit://openstack:Password123@controller
+    # crudini --set /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_status_changes true
+    # crudini --set /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_data_changes true
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken www_authenticate_uri http://controller:5000
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_url http://controller:5000
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken memcached_servers controller:11211
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_type password
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken project_domain_name default
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken user_domain_name default
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken project_name service
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken username neutron
+    # crudini --set /etc/neutron/neutron.conf keystone_authtoken password Password123
+    # crudini --set /etc/neutron/neutron.conf oslo_concurrency lock_path /var/lib/neutron/tmp
+    ```
+- **B3 :** Sửa file cấu hình `/etc/neutron/plugins/ml2/openvswitch_agent.ini` :
+    ```
+    # crudini --set /etc/neutron/plugins/ml2/openvswitch_agent.ini ovs local_ip $(ip addr show dev eth2 scope global | grep "inet " | sed -e 's#.*inet ##g' -e 's#/.*##g')
+    # crudini --set /etc/neutron/plugins/ml2/openvswitch_agent.ini agent tunnel_types vxlan
+    # crudini --set /etc/neutron/plugins/ml2/openvswitch_agent.ini agent l2_population True
+    ```
+- **B4 :** Khai báo cho file `/etc/neutron/dhcp_agent.ini` :
+    ```
+    # crudini --set /etc/neutron/dhcp_agent.ini DEFAULT interface_driver openvswitch
+    # crudini --set /etc/neutron/dhcp_agent.ini DEFAULT enable_isolated_metadata True
+    # crudini --set /etc/neutron/dhcp_agent.ini DEFAULT force_metadata True
+    ```
+- **B5 :** Khai báo trong file `/etc/neutron/metadata_agent.ini` :
+    ```
+    # crudini --set /etc/neutron/metadata_agent.ini DEFAULT nova_metadata_host controller
+    # crudini --set /etc/neutron/metadata_agent.ini DEFAULT metadata_proxy_shared_secret Password123
+    ```
+- **B6 :** Khởi động dịch vụ **OvS** :
+    ```
+    # systemctl enable openvswitch
+    # systemctl start openvswitch
+    ```
+- **B7 :** Tạo 1 bridge `br-provider` :
+    ```
+    # ovs-vsctl add-br br-provider
+    ```
+- **B8 :** Thêm provider interface vào bridge :
+    ```
+    # ovs-vsctl add-port br-provider eth0
+    ```
+- **B9 :** Khởi động dịch vụ Neutron :
+    ```
+    # systemctl enable neutron-openvswitch-agent neutron-metadata-agent neutron-dhcp-agent
+    # systemctl start neutron-openvswitch-agent neutron-metadata-agent neutron-dhcp-agent
+    ```
+
+- Scrip :
+    ```sh
+    #!/bin/bash
+    ovs-vsctl add-br br-provider
+    ovs-vsctl add-port br-provider eth0
+    ip a flush eth0
+    ip a add 10.5.11.202/22 dev br-provider
+    ip link set br-provider up
+    ip r add default via 10.5.8.1
+    ```
