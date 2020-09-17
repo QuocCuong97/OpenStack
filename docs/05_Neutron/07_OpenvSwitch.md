@@ -214,6 +214,7 @@
     ```
     # openstack network agent list
     ```
+    <img src=https://i.imgur.com/Izb0LJu.png>
 ### **2.4.2) Trên node compute**
 - **B1 :** Khai báo bổ sung cho `Nova` :
     ```
@@ -230,7 +231,7 @@
     ```
 - **B2 :** Cài đặt **Neutron** và **OpenvSwitch** :
     ```
-    # yum install -y openstack-neutron openstack-neutron-ml2 openstack-neutron-linuxbridge ebtables ipset
+    # yum install -y openstack-neutron openstack-neutron-ml2 openstack-neutron-openvswitch ebtables ipset
     ```
 - **B3 :** Sao lưu file cấu hình của **OpenvSwitch** :
     ```
