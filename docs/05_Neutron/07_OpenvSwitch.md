@@ -63,8 +63,71 @@
         - Ít chức năng : **LinuxBridge** không hỗ trợ **Neutron DVR**,VXLan và nhiều chức năng khác .
         - Ít được support : **LinuxBridge** sẽ ít cộng đồng hỗ trợ hơn **OpenvSwitch**
 ### **2.3) Các lệnh thường dùng trong OpenvSwitch**
-### **2.4) Triển khai OpenvSwitch**
-#### **2.4.1) Trên node controller**
+- `ovs-` : Chỉ cần nhập vào `ovs` rồi ấn tab 2 lần là có thể xem tất cả các câu lệnh đối với OpenvSwitch :
+
+    <img src=https://i.imgur.com/Aa65th0.png>
+
+- `ovs-vsctl` : là câu lệnh để cài đặt và thay đổi một số cấu hình ovs. Nó cung cấp interface cho phép người dùng tương tác với Database để truy vấn và thay đổi dữ liệu :
+    - `ovs-vsctl show` : Hiển thị cấu hình hiện tại của switch.
+    - `ovs-vsctl list-br`: Hiển thị tên của tất cả các bridges.
+    - `ovs-vsctl list-ports` : Hiển thị tên của tất cả các port trên bridge.
+    - `ovs-vsctl list interface` : Hiển thị tên của tất cả các interface trên bridge.
+    - `ovs-vsctl add-br` : Tạo bridge mới trong database.
+    - `ovs-vsctl add-port` : Gán interface (card ảo hoặc card vật lý) vào Open vSwitch bridge.
+- `ovs-ofctl` và `ovs-dpctl` : Dùng để quản lí và kiểm soát các flow entries. OVS quản lý 2 loại flow:
+    - OpenFlows : flow quản lí control plane
+    - Datapath : là kernel flow.
+    - `ovs-ofctl` giao tiếp với OpenFlow module, ovs-dpctl giao tiếp với Kernel module.
+- `ovs-ofctl show` : hiển thị thông tin ngắn gọn về switch bao gồm port number và port mapping.
+- `ovs-ofctl dump-flows` : Dữ liệu trong OpenFlow tables
+- `ovs-dpctl show` : Thông tin cơ bản về logical datapaths (các bridges) trên switch.
+- `ovs-dpctl dump-flows` : Hiển thị flow cached trong datapath.
+- `ovs-appctl bridge/dumpflows` : thông tin trong flow tables và offers kết nối trực tiếp cho VMs trên cùng hosts.
+- `ovs-appctl fdb/show` : Hiển thị các cặp mac/vlan trên bridge.
+### **2.4) Nguyên lý hoạt động trong OpenvSwitch**
+<p align=center><img src=https://i.imgur.com/CLnrwZU.png></p>
+
+- Theo mô hình trên, NIC của VM kết nối đến tap interface (`vnet`) của LinuxBridge . Lý do duy nhất mà **linux bridge** còn được sử dụng là vì các iptables rule bên trên các **bridge** này được sử dụng để  thực thi security group rule cho VM. **Linux bridge** được kết nối thông qua veth pairt tới **integration bridge** `br-int` của **OvS**. . **Integration bridge** `br-int` sẽ gắn VLAN tag vào các gói tin tới từ các VM. VLAN tag này là riêng biệt trên từng network trên mỗi compute node. **Integration bridge** được kết nối đến bridge `br-tun` trong trường hợp sử dụng các giao thức tunnel như **VXLAN** hay **GRE** .
+- Ta có thể dễ dàng kiểm tra được sự xuất hiện của các **tap interface** trong các compute node bằng lệnh `ip a` hoặc `ifconfig`, nhưng kết quả trả về sẽ hoàn toàn không có các **linux bridge** . Đó là vì **ML2/ODL** không dựa vào Iptable để theo dõi các trạng thái vì vậy thậm chí nó có thể không cần đến **linux bridge** . Thậm chí, nếu sử dụng `firewall_driver` là `openvswitch` thay cho `iptables_hybrid` mặc định, sẽ chả có **linux bridge** nào được tạo ra . Theo các đánh giá hiệu năng, `openvswitch firewall_driver` cho thấy hiệu quả tốt hơn .
+- Để thay đổi cài đặt này, chỉnh sửa trong file `/etc/neutron/plugins/ml2/openvswitch_agent.ini` :
+    ```ini
+    [securitygroup]
+    ...
+    firewall_driver = openvswitch
+    ...
+    ```
+### **Cách kiểm tra tap interface nào gắn vào VM nào**
+- Trước hết kiểm tra xem VM đang ở trên node nào :
+    ```
+    # openstack server list --long
+    ```
+    <img src=https://i.imgur.com/1YE7oCe.png>
+
+    > Các VM đang được đặt ở `compute1`
+
+- Trên node compute1 kiểm tra các tap interface đang có :
+    ```
+    # ovs-vsctl list-ports br-int
+    ```
+    <img src=https://i.imgur.com/jshjXuZ.png>
+
+- Kiểm tra lại các port đang có trên các VM :
+    ```
+    # openstack port list
+    ```
+    <img src=https://i.imgur.com/3Le6wVj.png>
+
+    - Tại đây ta có thể thấy rõ ID của các port được sử dụng để đặt tên cho **tap interface** kết nối với nó :
+        - Port ID : `1f7f9831-3183-4c17-ada8-3d687b2437a3` <=> Interface : `tap1f7f9831-31`
+        - Port ID : `6cf796e9-f3af-43f2-b92c-217bf040b90e` <=> Interface : `tap6cf796e9-f3`
+        - Port ID : `78ed0e52-2374-441d-85ba-84ff9fb90a7d` <=> Interface : `tap78ed0e52-23`
+- Việc cuối cùng ta chỉ cần xem port ID trên gắn trên VM nào bằng lệnh :
+    ```
+    # openstack port show <port_ID>
+    ```
+    <img src=https://i.imgur.com/oSl8fNg.png>
+### **2.5) Triển khai OpenvSwitch**
+#### **2.5.1) Trên node controller**
 - **B1 :** Tạo database cho `Neutron` :
     ```
     # mysql -u root -pPassword123
@@ -215,7 +278,7 @@
     # openstack network agent list
     ```
     <img src=https://i.imgur.com/Izb0LJu.png>
-### **2.4.2) Trên node compute**
+### **2.5.2) Trên node compute**
 - **B1 :** Khai báo bổ sung cho `Nova` :
     ```
     # crudini --set /etc/nova/nova.conf DEFAULT use_neutron true
@@ -320,3 +383,8 @@
     ```
     # systemctl restart openstack-nova-compute
     ```
+-----------------------------------------
+Tham khảo
+- https://docs.openstack.org/neutron/train/admin/deploy-ovs-provider.html
+- https://docs.openstack.org/neutron/train/admin/deploy-ovs-selfservice.html
+- https://thesaitech.wordpress.com/2017/09/24/how-to-trace-the-tap-interfaces-and-linux-bridges-on-the-hypervisor-your-openstack-vm-is-on/

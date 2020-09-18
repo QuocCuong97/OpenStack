@@ -54,3 +54,18 @@
 
     - Trong hình, 2 mạng local được tạo ra sẽ 2 bridge riêng: `brqXXXX` và `brqYYYY`. Instance kết nối tới cùng 1 bridge có thể giao tiếp được với nhau nhưng không thể giao tiếp ở ngoài bridge. Không có cơ chế nào cho phép traffic giữa các instance nối đến các bridge khi sử dụng mạng local
 ## **2) OpenvSwitch**
+- Khi sử dụng **OpenvSwitch driver**, để một Ethernet frame đi từ instance ra ngoài physical interface sẽ có khả năng đi qua 9 device sau trong host :  
+    - Tap interface : `tapXXXX`
+    - Linux bridge : `qbrXXXX`
+    - veth pair : `qvbXXXX`, `qvoXXXX`
+    - OvS integration bridge : `br-int`
+    - OvS patch port : `int-b-ethX` và `phy-br-ethX`
+    - OvS provider bridge : `br-ethX`
+    - Physical interface : `ethX`
+    - OvS tunnel bridge : `br-tun`
+- Open vSwitch bridge `br-int` được biết đến là **integration bridge**. **Integration bridge** là switch ảo trung tâm mà các thiết bị ảo kết nối đến, bao gồm các instance, DHCP server, router,... Khi **security group** được kích hoạt, instance sẽ không kết nối thẳng đến **integration bridge**. Thay vào đó, instance sẽ kết nối đến các Linux Bridge riêng biệt được kết nối với **integration bridge** thông qua veth cable .
+- Open vSwitch bridge `br-ethX` được biết đến là **provider bridge**. **Provider bridge** cung cấp kết nối tới mạng vật lý thông qua physical interface. **Provider bridge** cũng kết nối tới **integration bridge** được cung cấp bởi `int-br-ethX` và `phy-br-ethX` patch port .
+
+    <p align=center><img src=https://i.imgur.com/qCuHvqo.png></p>
+
+    - Trong hình, ta thấy instance được kết nối tới các Linux Bridge riêng biệt. Linux Bridge được kết nối đến OVS **integration bridge** thông qua veth cable. **OpenFlow** rule trên **integration bridge** sẽ quyết định cách mà traffic được forward qua virtual switch. **Integration bridge** được kết nối tới **provider bridge** sử dụng OvS patch cable . Cuối cùng, **provider bridge** kết nối tới physical interface, nơi cho phép traffic đi ra và đi vào .
