@@ -657,7 +657,7 @@
     # crudini --set /etc/nova/nova.conf placement auth_url http://controller:5000/v3
     # crudini --set /etc/nova/nova.conf placement username placement
     # crudini --set /etc/nova/nova.conf placement password Password123
-    # crudini --set /etc/nova/nova.conf libvirt virt_type qemu
+    # crudini --set /etc/nova/nova.conf libvirt virt_type $(count=$(egrep -c '(vmx|svm)' /proc/cpuinfo); if [ $count -eq 0 ];then   echo "qemu"; else   echo "kvm"; fi)
     ```
 - **B4 :** Khởi động **`Nova`** :
     ```

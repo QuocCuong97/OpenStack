@@ -43,3 +43,6 @@
     # ip netns exec qdhcp-4a9229fc-9d72-449d-b908-b8ca5c5be852 netstat -lutpn | grep 14275
     ```
     <img src=https://i.imgur.com/DKj8j3x.png>
+
+> ## **Chú ý :**
+- Cả router namespace và DHCP namespace đều có `metadata-proxy` chạy để xử lý metadata request, tuy nhiên  `169.254.169.254` được định tuyến đến DHCP server trước khi restart `neutron-dhcp-agent`. Sau khi restart, `169.254.169.254` sẽ được định tuyến đến router gateway IP thông qua default route .
