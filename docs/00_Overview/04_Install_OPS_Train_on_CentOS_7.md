@@ -667,7 +667,6 @@
 #### **2.10.3) Thêm các node `compute` vào hệ thống (trên node `controller`)**
 - **B1 :** Kiểm tra các node `compute` đã up hay chưa :
     ```
-    # source /root/admin-openrc
     # openstack compute service list --service nova-compute
     ```
     <img src=https://i.imgur.com/0oaLGYK.png>
@@ -688,7 +687,6 @@
     ```
 - **B2 :** Tạo project, user, endpoint cho **`Neutron`** :
     ```
-    # source /root/admin-openrc
     # openstack user create neutron --domain default --password Password123
     # openstack role add --project service --user neutron admin
     # openstack service create --name neutron --description "OpenStack Networking" network
@@ -943,7 +941,7 @@
     ```
     # systemctl restart httpd memcached
     # systemctl restart openstack-nova-api openstack-nova-scheduler openstack-nova-conductor openstack-nova-novncproxy
-    # systemctl start neutron-server neutron-linuxbridge-agent neutron-dhcp-agent neutron-metadata-agent
+    # systemctl restart neutron-server neutron-linuxbridge-agent neutron-dhcp-agent neutron-metadata-agent
     ```
 - **B6 :** Truy cập đường dẫn sau trên trình duyệt để vào dashboard. Đăng nhập bằng tài khoản `admin`/ `Passw0rd123` vừa tạo ở trên:
     ```
