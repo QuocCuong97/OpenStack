@@ -39,6 +39,7 @@
 #### **2.1) Cài đặt package OpenStack trên cả 3 node**
 - Thực hiện các lệnh để cài đặt **OpenStack** :
     ```
+    # echo "nameserver 8.8.8.8" >> /etc/resolv.conf
     # yum -y install centos-release-openstack-train
     # yum -y upgrade
     # yum -y install python-openstackclient openstack-selinux crudini
@@ -393,11 +394,7 @@
     > FLUSH PRIVILEGES;
     > exit;
     ```
-- **B2 :** Thực thi biến môi trường :
-    ```
-    # source /root/admin-openrc
-    ```
-- **B3 :** Tạo user, project cho **`glance`** :
+- **B2 :** Tạo user, project cho **`glance`** :
     ```
     # openstack user create glance --domain default --password Password123
     # openstack role add --project service --user glance admin
@@ -406,15 +403,15 @@
     # openstack endpoint create --region RegionOne image internal http://controller:9292
     # openstack endpoint create --region RegionOne image admin http://controller:9292
     ```
-- **B4 :** Cài đặt `glance` và các package cần thiết :
+- **B3 :** Cài đặt `glance` và các package cần thiết :
     ```
     # yum install -y openstack-glance MySQL-python python-devel
     ```
-- **B5 :** Sao lưu file cấu hình **`Glance`** :
+- **B4 :** Sao lưu file cấu hình **`Glance`** :
     ```
     # cp /etc/glance/glance-api.conf /etc/glance/glance-api.conf.bak
     ```
-- **B6 :** Cấu hình **`Glance`** :
+- **B5 :** Cấu hình **`Glance`** :
     ```
     # crudini --set /etc/glance/glance-api.conf database connection mysql+pymysql://glance:Password123@controller/glance
     # crudini --set /etc/glance/glance-api.conf keystone_authtoken www_authenticate_uri http://controller:5000
@@ -431,22 +428,22 @@
     # crudini --set /etc/glance/glance-api.conf glance_store default_store file
     # crudini --set /etc/glance/glance-api.conf glance_store filesystem_store_datadir /var/lib/glance/images/
     ```
-- **B7 :** Đồng bộ để sync database cho **`Glance`** :
+- **B6 :** Đồng bộ để sync database cho **`Glance`** :
     ```
     # su -s /bin/sh -c "glance-manage db_sync" glance
     ```
-- **B8 :** Khởi động dịch vụ **`glance`** :
+- **B7 :** Khởi động dịch vụ **`glance`** :
     ```
     # systemctl enable openstack-glance-api
     # systemctl start openstack-glance-api
     ```
-- **B9 :** Tải image và import vào **`glance`** :
+- **B8 :** Tải image và import vào **`glance`** :
     ```
     # wget http://download.cirros-cloud.net/0.5.1/cirros-0.5.1-x86_64-disk.img
     # openstack image create "cirros" --file cirros-0.5.1-x86_64-disk.img --disk-format qcow2 --container-format bare --public
     ```
     > Đây là một test image của **OpenStack**. Download các image khác tại [đây](https://docs.openstack.org/image-guide/obtain-images.html)
-- **B10 :** Kiểm tra lại xem image đã được up hay chưa :
+- **B9 :** Kiểm tra lại xem image đã được up hay chưa :
     ```
     # openstack image list
     ```
@@ -465,11 +462,7 @@
     > FLUSH PRIVILEGES;
     > exit;
     ```
-- **B2 :** Thực thi biến môi trường để sử dụng được CLI của OpenStack:
-    ```
-    # source /root/admin-openrc
-    ```
-- **B3 :** Tạo service, gán quyền, endpoint cho `placement` :
+- **B2 :** Tạo service, gán quyền, endpoint cho `placement` :
     ```
     # openstack user create placement --domain default --password Password123
     # openstack role add --project service --user placement admin
@@ -478,15 +471,15 @@
     # openstack endpoint create --region RegionOne placement internal http://controller:8778
     # openstack endpoint create --region RegionOne placement admin http://controller:8778
     ```
-- **B4 :** Cài đặt `placement` :
+- **B3 :** Cài đặt `placement` :
     ```
     # yum install -y openstack-placement-api
     ```
-- **B5 :** Sao lưu file cấu hình của `placement` :
+- **B4 :** Sao lưu file cấu hình của `placement` :
     ```
     # cp /etc/placement/placement.conf /etc/placement/placement.conf.bak
     ```
-- **B6 :** Cấu hình `placement` :
+- **B5 :** Cấu hình `placement` :
     ```
     # crudini --set /etc/placement/placement.conf placement_database connection mysql+pymysql://placement:Password123@controller/placement
     # crudini --set /etc/placement/placement.conf api auth_strategy keystone
@@ -499,7 +492,7 @@
     # crudini --set /etc/placement/placement.conf keystone_authtoken username placement
     # crudini --set /etc/placement/placement.conf keystone_authtoken password Password123
     ```
-- **B7 :** Khai báo phân quyền cho `placement` :
+- **B6 :** Khai báo phân quyền cho `placement` :
     ```
     # vi /etc/httpd/conf.d/00-nova-placement-api.conf
     ```
@@ -515,11 +508,11 @@
           </IfVersion>
         </Directory>
         ```
-- **B8 :** Tạo các bảng, đồng bộ dữ liệu cho `placement` :
+- **B7 :** Tạo các bảng, đồng bộ dữ liệu cho `placement` :
     ```
     # su -s /bin/sh -c "placement-manage db sync" placement
     ```
-- **B9 :** Khởi động lại `httpd` :
+- **B8 :** Khởi động lại `httpd` :
     ```
     # systemctl restart httpd
     ```
@@ -540,11 +533,7 @@
     > FLUSH PRIVILEGES;
     > exit
     ```
-- **B2 :** Thực thi biến môi trường để sử dụng được CLI của **OpenStack** :
-    ```
-    # source /root/admin-openrc
-    ```
-- **B3 :** Tạo endpoint cho `nova` :
+- **B2 :** Tạo endpoint cho `nova` :
     ```
     # openstack user create nova --domain default --password Password123
     # openstack role add --project service --user nova admin
@@ -553,15 +542,15 @@
     # openstack endpoint create --region RegionOne compute internal http://controller:8774/v2.1
     # openstack endpoint create --region RegionOne compute admin http://controller:8774/v2.1
     ```
-- **B4 :** Cài đặt `nova` và các package đi kèm :
+- **B3 :** Cài đặt `nova` và các package đi kèm :
     ```
     # yum install -y openstack-nova-api openstack-nova-conductor openstack-nova-novncproxy openstack-nova-scheduler
     ```
-- **B5 :** Sao lưu file cấu hình của `nova` :
+- **B4 :** Sao lưu file cấu hình của `nova` :
     ```
     # cp /etc/nova/nova.conf /etc/nova/nova.conf.bak
     ```
-- **B6 :** Cấu hình **`Nova`** :
+- **B5 :** Cấu hình **`Nova`** :
     ```
     # crudini --set /etc/nova/nova.conf DEFAULT my_ip 10.10.230.10
     # crudini --set /etc/nova/nova.conf DEFAULT enabled_apis osapi_compute,metadata
@@ -594,24 +583,24 @@
     # crudini --set /etc/nova/nova.conf placement password Password123
     # crudini --set /etc/nova/nova.conf scheduler discover_hosts_in_cells_interval 300
     ```
-- **B7 :** Thực hiện lệnh để sinh bảng cho **`Nova`** :
+- **B6 :** Thực hiện lệnh để sinh bảng cho **`Nova`** :
     ```
     # su -s /bin/sh -c "nova-manage api_db sync" nova
     # su -s /bin/sh -c "nova-manage cell_v2 map_cell0" nova
     # su -s /bin/sh -c "nova-manage cell_v2 create_cell --name=cell1 --verbose" nova
     # su -s /bin/sh -c "nova-manage db sync" nova
     ```
-- **B8 :** Kiểm tra lại xem `cell0` đã được đăng ký chưa :
+- **B7 :** Kiểm tra lại xem `cell0` đã được đăng ký chưa :
     ```
     # su -s /bin/sh -c "nova-manage cell_v2 list_cells" nova
     ```
     <img src=https://i.imgur.com/LvkPXdv.png>
-- **B9 :** Kích hoạt và khởi động các dịch vụ của **`Nova`** :
+- **B8 :** Kích hoạt và khởi động các dịch vụ của **`Nova`** :
     ```
     # systemctl enable openstack-nova-api openstack-nova-scheduler openstack-nova-conductor openstack-nova-novncproxy
     # systemctl start openstack-nova-api openstack-nova-scheduler openstack-nova-conductor openstack-nova-novncproxy
     ```
-- **B10 :** Kiểm tra lại xem dịch vụ của `nova` đã hoạt động chưa :
+- **B9 :** Kiểm tra lại xem dịch vụ của `nova` đã hoạt động chưa :
     ```
     # openstack compute service list
     ```
